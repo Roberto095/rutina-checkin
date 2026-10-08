@@ -110,6 +110,18 @@ label.fl { display: block; font-size: 13px; font-weight: 600; color: var(--muted
 .tag.part { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
 .wday .bar { grid-column: 1 / -1; margin: 4px 0 0; height: 6px; }
 
+.scale { display: flex; flex-wrap: wrap; gap: 6px; }
+.sc { flex: 1 0 40px; max-width: 64px; min-height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface2); font-family: var(--font-mono); font-weight: 500; }
+.sc.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.sc.hi.on { background: var(--warn); border-color: var(--warn); color: var(--surface); }
+.loadrow { margin-top: 14px; }
+.small { font-size: 14px; margin-top: 6px; }
+.hint { margin: 6px 0 0; font-size: 14px; color: var(--ok); font-weight: 600; }
+.note.ok { background: var(--ok-bg); }
+.chart { margin-top: 14px; }
+.chart svg { display: block; width: 100%; max-width: 100%; height: auto; margin-top: 6px; overflow: visible; font-family: var(--font-mono); }
+.readout { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+input[type=file] { max-width: 100%; font: inherit; font-size: 14px; }
 .tablewrap { overflow-x: auto; margin-top: 10px; }
 table { border-collapse: collapse; width: 100%; font-size: 15px; }
 th, td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
@@ -172,22 +184,22 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
   var SESS = {
     A: { title: 'Fuerza A', sub: 'Pierna y empuje', items: [
       WARM,
-      { id: 'a_sent', name: 'Sentadilla a la silla con pesa al pecho', sets: 3, reps: '10-12', note: 'bajar en 3 s', tips: ['Pies al ancho de los hombros, puntas un poco hacia afuera.', 'Baja hasta tocar la silla sin dejarte caer, y sube empujando todo el pie contra el piso.', 'Rodillas siguen la dirección de los pies, pecho arriba, pesa pegada al pecho.'] },
-      { id: 'a_rdl', name: 'Peso muerto rumano con la barra', sets: 3, reps: '12', tips: ['Rodillas apenas flexionadas y fijas.', 'Lleva la cadera hacia atrás, como cerrando una puerta con el glúteo.', 'Espalda recta, barra pegada a las piernas, baja hasta media espinilla y sube apretando glúteos.'] },
+      { id: 'a_sent', track: 'kg', name: 'Sentadilla a la silla con pesa al pecho', sets: 3, reps: '10-12', note: 'bajar en 3 s', tips: ['Pies al ancho de los hombros, puntas un poco hacia afuera.', 'Baja hasta tocar la silla sin dejarte caer, y sube empujando todo el pie contra el piso.', 'Rodillas siguen la dirección de los pies, pecho arriba, pesa pegada al pecho.'] },
+      { id: 'a_rdl', track: 'kg', name: 'Peso muerto rumano con la barra', sets: 3, reps: '12', tips: ['Rodillas apenas flexionadas y fijas.', 'Lleva la cadera hacia atrás, como cerrando una puerta con el glúteo.', 'Espalda recta, barra pegada a las piernas, baja hasta media espinilla y sube apretando glúteos.'] },
       { id: 'a_pue', name: 'Puente de glúteos con pausa', sets: 3, reps: '15', note: 'pausa de 2 s arriba', tips: ['Tumbado, rodillas dobladas, talones cerca de los glúteos.', 'Sube la cadera apretando glúteos, sin arquear la espalda baja.'] },
-      { id: 'a_fle', name: 'Flexiones inclinadas (manos en mesa firme)', sets: 3, reps: '8-12', note: 'bajar en 3 s', tips: ['Cuerpo recto de cabeza a talones, abdomen firme.', 'Codos a unos 45 grados del cuerpo, no abiertos.', 'Cuanto más alta la mesa, más fácil.'] },
-      { id: 'a_pre', name: 'Press de hombros con mancuernas de 5 kg', sets: 3, reps: '10-12', tips: ['De pie o sentado con la espalda recta, sin arquear la zona lumbar.', 'Sube sin chocar las mancuernas y baja hasta la altura de las orejas.'] },
+      { id: 'a_fle', track: 'reps', name: 'Flexiones inclinadas (manos en mesa firme)', sets: 3, reps: '8-12', note: 'bajar en 3 s', tips: ['Cuerpo recto de cabeza a talones, abdomen firme.', 'Codos a unos 45 grados del cuerpo, no abiertos.', 'Cuanto más alta la mesa, más fácil.'] },
+      { id: 'a_pre', track: 'kg', name: 'Press de hombros con mancuernas de 5 kg', sets: 3, reps: '10-12', tips: ['De pie o sentado con la espalda recta, sin arquear la zona lumbar.', 'Sube sin chocar las mancuernas y baja hasta la altura de las orejas.'] },
       { id: 'a_pla', name: 'Plancha', sets: 3, reps: '30 s', tips: ['Antebrazos en el piso, codos bajo los hombros.', 'Glúteos y abdomen apretados, sin hundir la cadera. Respira normal.'] },
       CARDIO, STRETCH
     ] },
     B: { title: 'Fuerza B', sub: 'Espalda y pierna', items: [
       WARM,
-      { id: 'b_zan', name: 'Zancada hacia atrás corta, sujeto de algo', sets: 3, reps: '8 por pierna', tips: ['Da un paso corto hacia atrás y baja la rodilla trasera hacia el piso.', 'El peso va en el talón de la pierna de adelante.', 'Sujétate de una pared o silla para no perder el equilibrio.'] },
-      { id: 'b_rem', name: 'Remo inclinado con la barra', sets: 3, reps: '12', tips: ['Cadera atrás, espalda recta, torso inclinado unos 45 grados.', 'Lleva la barra hacia el ombligo juntando los omóplatos.', 'Baja con control, sin tirones.'] },
+      { id: 'b_zan', track: 'reps', name: 'Zancada hacia atrás corta, sujeto de algo', sets: 3, reps: '8 por pierna', tips: ['Da un paso corto hacia atrás y baja la rodilla trasera hacia el piso.', 'El peso va en el talón de la pierna de adelante.', 'Sujétate de una pared o silla para no perder el equilibrio.'] },
+      { id: 'b_rem', track: 'kg', name: 'Remo inclinado con la barra', sets: 3, reps: '12', tips: ['Cadera atrás, espalda recta, torso inclinado unos 45 grados.', 'Lleva la barra hacia el ombligo juntando los omóplatos.', 'Baja con control, sin tirones.'] },
       { id: 'b_col', name: 'Colgarte de la barra con pies en la silla', sets: 4, reps: '5-8 s', note: 'meta: 3 x 20 s', tips: ['Hombros activos, sin dejarlos caer hacia las orejas.', 'Sin balanceo. Descansa 60 s entre colgadas.', 'Para si sientes dolor en el hombro, no solo cansancio en los antebrazos.'] },
-      { id: 'b_dom', name: 'Dominada asistida con silla', sets: 3, reps: '5', tips: ['Pies en la silla, impúlsate con las piernas lo justo.', 'Sube con los brazos y baja lento, sin soltarte de golpe.'] },
+      { id: 'b_dom', track: 'reps', name: 'Dominada asistida con silla', sets: 3, reps: '5', tips: ['Pies en la silla, impúlsate con las piernas lo justo.', 'Sube con los brazos y baja lento, sin soltarte de golpe.'] },
       { id: 'b_fon', name: 'Fondos: aguantar arriba con pies en la silla', sets: 3, reps: '8-10 s', tips: ['Brazos estirados, hombros lejos de las orejas.', 'Si no puedes mantenerte, haz fondos de silla con los pies en el piso.'] },
-      { id: 'b_cur', name: 'Curl de bíceps con mancuernas', sets: 3, reps: '12', tips: ['Codos pegados al cuerpo, sin balancear el torso.', 'Sube sin impulso y baja lento.'] },
+      { id: 'b_cur', track: 'kg', name: 'Curl de bíceps con mancuernas', sets: 3, reps: '12', tips: ['Codos pegados al cuerpo, sin balancear el torso.', 'Sube sin impulso y baja lento.'] },
       { id: 'b_rod', name: 'Elevación de rodillas tumbado', sets: 3, reps: '10', tips: ['Espalda baja pegada a la colchoneta.', 'Sube las rodillas hacia el pecho y baja sin que los pies toquen el piso.'] },
       CARDIO, STRETCH
     ] },
@@ -334,6 +346,29 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       '<div class="streak"><b class="num">' + streak() + '</b><span class="eyebrow">días de racha</span><div class="sync" id="sync">' + syncText() + '</div></div></div>';
   }
 
+  function topReps(it) { var m = String(it.reps).match(/(\d+)(?!.*\d)/); return m ? +m[1] : null; }
+  function lastLoad(id, before) {
+    var ks = Object.keys(S.logs).filter(function (k) { return k < before; }).sort().reverse();
+    for (var i = 0; i < ks.length; i++) {
+      var o = S.logs[ks[i]].load && S.logs[ks[i]].load[id];
+      if (o && (o.kg != null || o.reps != null)) return { date: ks[i], kg: o.kg, reps: o.reps };
+    }
+    return null;
+  }
+  function loadHTML(it, l) {
+    var cv = (l.load && l.load[it.id]) || {}, prev = lastLoad(it.id, cur), top = topReps(it);
+    var h = '<div class="fields loadrow">';
+    if (it.track === 'kg') h += '<div><label class="fl" for="kg-' + it.id + '">Peso usado (kg)</label><input type="text" id="kg-' + it.id + '" inputmode="decimal" autocomplete="off" data-load="' + it.id + '" data-k="kg" value="' + (cv.kg != null ? fmt(cv.kg) : '') + '" placeholder="' + (prev && prev.kg != null ? fmt(prev.kg) : 'kg') + '"></div>';
+    h += '<div><label class="fl" for="rp-' + it.id + '">Reps de la última serie</label><input type="text" id="rp-' + it.id + '" inputmode="numeric" autocomplete="off" data-load="' + it.id + '" data-k="reps" value="' + (cv.reps != null ? cv.reps : '') + '" placeholder="' + (prev && prev.reps != null ? prev.reps : 'reps') + '"></div>';
+    if (it.track !== 'kg') h += '<div></div>';
+    h += '</div>';
+    if (prev) {
+      var txt = 'Última vez (' + shortDate(prev.date) + '): ' + (prev.kg != null ? fmt(prev.kg) + ' kg x ' : '') + (prev.reps != null ? prev.reps + ' reps' : 'sin reps');
+      h += '<p class="sub small">' + esc(txt) + '</p>';
+      if (top && prev.reps != null && prev.reps >= top) h += '<p class="hint">Llegaste al tope del rango. Hoy baja más lento o, si la técnica está limpia, sube un poco el peso.</p>';
+    }
+    return h;
+  }
   function maxSets(it) { return it.sets > 1 ? it.sets + 1 : it.sets; }
   function itemHTML(it, l) {
     var c = Math.min(maxSets(it), l.sets[it.id] || 0);
@@ -348,11 +383,29 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     } else {
       ctl = '<button type="button" class="pill' + (c ? ' on' : '') + '" data-act="set" data-id="' + it.id + '" data-i="0" aria-pressed="' + (c > 0) + '">' + (c ? 'Hecho' : 'Marcar hecho') + '</button>';
     }
+    if (it.track) ctl += loadHTML(it, l);
     var tips = '<details class="how" data-tip="' + it.id + '"' + (openTips[it.id] ? ' open' : '') + '><summary>Cómo se hace</summary><ul>' +
       it.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></details>';
     return '<section class="card ex' + (c >= it.sets ? ' complete' : '') + '"><h3>' + esc(it.name) + '</h3><p class="meta">' + esc(meta) + '</p>' + ctl + tips + '</section>';
   }
 
+  function scaleHTML(k, from, to, val) {
+    var h = '<div class="scale">';
+    for (var v = from; v <= to; v++) h += '<button type="button" class="sc' + (val === v ? ' on' : '') + (k === 'foot' && v >= 4 ? ' hi' : '') + '" data-act="rate" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (val === v) + '">' + v + '</button>';
+    return h + '</div>';
+  }
+  function lowEnergyStreak(d) {
+    for (var i = 0; i < 3; i++) { var e = getLog(addDays(d, -i)).energy; if (e == null || e > 2) return false; }
+    return true;
+  }
+  function feelHTML(l) {
+    var h = '<section class="card"><h3>¿Cómo llegas hoy?</h3>' +
+      '<p class="eyebrow" style="margin:12px 0 6px">Energía · 1 muy baja, 5 muy alta</p>' + scaleHTML('energy', 1, 5, l.energy) +
+      '<p class="eyebrow" style="margin:14px 0 6px">Dolor del pie · 0 nada, 10 máximo</p>' + scaleHTML('foot', 0, 10, l.foot);
+    if (l.foot != null && l.foot >= 4) h += '<div class="note">Dolor de 4 o más: hoy sin serie extra y sin zancadas si molestan. Si sigue así 3 días, consulta a un fisioterapeuta.</div>';
+    if (lowEnergyStreak(cur)) h += '<div class="note">Tres días seguidos con energía baja: haz la versión mínima, prioriza dormir y revisa que estés comiendo lo suficiente.</div>';
+    return h + '</section>';
+  }
   function hoyHTML() {
     var s = sessionOf(cur), l = getLog(cur), p = progress(cur), isToday = cur === today();
     var wn = weekNum(cur);
@@ -362,6 +415,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       '<button type="button" class="iconbtn" data-act="day" data-n="1" aria-label="Día siguiente">›</button></div>';
     if (!isToday) html += '<div style="text-align:center;margin:-6px 0 8px"><button type="button" class="linkbtn" data-act="gotoday">Volver a hoy</button></div>';
 
+    html += feelHTML(l);
     if (!s.items.length) {
       html += '<section class="card"><h2>' + s.title + '</h2><p class="sub">' + s.sub + '</p>' +
         '<p>Hoy no se entrena. Duerme tus 8 horas, camina un poco y mide tu peso y tu cintura en la pestaña Progreso.</p>' +
@@ -423,6 +477,87 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
   }
   function fmt(n) { return n == null ? '·' : String(n).replace('.', ','); }
 
+  /* ---------- Gráfica de línea (SVG) ---------- */
+  function chartHTML(key, label, unit, pts) {
+    var head = '<div class="chart"><div class="rowbetween"><h3>' + label + '</h3><span class="eyebrow">' + unit + '</span></div>';
+    if (pts.length < 2) return head + '<p class="empty">' + (pts.length ? 'Con una medida más aparece la línea.' : 'Sin datos todavía.') + '</p></div>';
+    var W = 320, H = 150, L = 40, R = 16, T = 16, B = 26;
+    var t0 = parse(pts[0].date).getTime(), span = (parse(pts[pts.length - 1].date).getTime() - t0) || 1;
+    var vs = pts.map(function (p) { return p.v; });
+    var lo = Math.floor(Math.min.apply(null, vs)) - 1, hi = Math.ceil(Math.max.apply(null, vs)) + 1;
+    function x(p) { return L + (parse(p.date).getTime() - t0) / span * (W - L - R); }
+    function y(v) { return T + (hi - v) / (hi - lo) * (H - T - B); }
+    var ticks = [lo, Math.round((lo + hi) / 2), hi], g = '';
+    ticks.forEach(function (t) {
+      g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="var(--line)" stroke-width="1"></line>' +
+        '<text x="' + (L - 6) + '" y="' + (y(t) + 3.5) + '" text-anchor="end" fill="var(--muted)" font-size="10">' + fmt(t) + '</text>';
+    });
+    g += '<text x="' + L + '" y="' + (H - 6) + '" fill="var(--muted)" font-size="10">' + esc(shortDate(pts[0].date)) + '</text>' +
+      '<text x="' + (W - R) + '" y="' + (H - 6) + '" text-anchor="end" fill="var(--muted)" font-size="10">' + esc(shortDate(pts[pts.length - 1].date)) + '</text>';
+    var line = pts.map(function (p) { return x(p).toFixed(1) + ',' + y(p.v).toFixed(1); }).join(' ');
+    var dots = '', hits = '';
+    pts.forEach(function (p, i) {
+      var ch = i ? Math.round((p.v - pts[0].v) * 10) / 10 : 0;
+      var txt = shortDate(p.date) + ' · ' + fmt(p.v) + ' ' + unit + (i ? ' (' + (ch > 0 ? '+' : '') + fmt(ch) + ' desde el inicio)' : ' (inicio)');
+      dots += '<circle cx="' + x(p) + '" cy="' + y(p.v) + '" r="4" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"></circle>';
+      hits += '<circle cx="' + x(p) + '" cy="' + y(p.v) + '" r="14" fill="transparent" data-act="pt" data-c="' + key + '" data-txt="' + esc(txt) + '"><title>' + esc(txt) + '</title></circle>';
+    });
+    var last = pts[pts.length - 1], total = Math.round((last.v - pts[0].v) * 10) / 10;
+    var endLbl = '<text x="' + Math.min(x(last), W - R) + '" y="' + (y(last.v) - 9) + '" text-anchor="end" fill="var(--ink)" font-size="11" font-weight="600">' + fmt(last.v) + '</text>';
+    return head + '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + label + ' en el tiempo">' + g +
+      '<polyline points="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></polyline>' + dots + endLbl + hits + '</svg>' +
+      '<p class="readout" id="rd-' + key + '">Cambio total: ' + (total > 0 ? '+' : '') + fmt(total) + ' ' + unit + '. Toca un punto para ver el detalle.</p></div>';
+  }
+  function showPoint(el) { var r = document.getElementById('rd-' + el.dataset.c); if (r) r.textContent = el.dataset.txt; }
+
+  /* ---------- Respaldo ---------- */
+  var downloadsApi = null, downloadsOk = false, pendingImport = null;
+  function bkMsg(t) { var e = document.getElementById('bk-msg'); if (e) e.textContent = t; }
+  function exportData() {
+    if (!downloadsApi) return;
+    downloadsApi.save({ filename: 'rutina-respaldo-' + today() + '.json', data: JSON.stringify(S, null, 2) })
+      .then(function () { bkMsg('Respaldo descargado.'); })
+      .catch(function (e) {
+        var c = e && e.code;
+        bkMsg(c === 'declined' ? 'Descarga cancelada.' : c === 'rate_limited' ? 'Espera un momento y vuelve a intentarlo.' : 'No se pudo descargar aquí. Usa "Copiar datos".');
+      });
+  }
+  function copyData() {
+    var txt = JSON.stringify(S);
+    function fallback() {
+      var ta = document.getElementById('bk-text');
+      if (!ta) return;
+      ta.hidden = false; ta.value = txt; ta.focus(); ta.select();
+      bkMsg('Mantén presionado el texto y cópialo.');
+    }
+    try {
+      navigator.clipboard.writeText(txt).then(function () { bkMsg('Datos copiados. Pégalos en una nota o un correo para guardarlos.'); }, fallback);
+    } catch (e) { fallback(); }
+  }
+  document.addEventListener('change', function (e) {
+    if (!e.target || e.target.id !== 'bk-file') return;
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var o = JSON.parse(r.result);
+        if (!o || typeof o !== 'object' || !o.logs || typeof o.logs !== 'object') throw new Error();
+        pendingImport = o; render();
+      } catch (x) { bkMsg('Ese archivo no es un respaldo de esta app.'); }
+    };
+    r.onerror = function () { bkMsg('No se pudo leer el archivo.'); };
+    r.readAsText(f);
+  });
+  async function initDownloads() {
+    try {
+      if (!window.claude || !window.claude.use) return;
+      downloadsApi = await window.claude.use('downloads');
+      downloadsOk = !!downloadsApi;
+      if (downloadsOk && tab === 'progreso') render();
+    } catch (e) {}
+  }
+
   function progresoHTML() {
     var html = headHTML();
     var ms = S.measures.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
@@ -441,6 +576,11 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
         }).join('') + '</tbody></table></div>';
     } else html += '<p class="empty">Aún no hay medidas guardadas. Empieza con la de hoy.</p>';
     html += '</section>';
+    var asc = S.measures.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    html += '<section class="card"><h2>Tendencia</h2>' +
+      chartHTML('peso', 'Peso', 'kg', asc.filter(function (m) { return m.peso != null; }).map(function (m) { return { date: m.date, v: m.peso }; })) +
+      chartHTML('cin', 'Cintura', 'cm', asc.filter(function (m) { return m.cintura != null; }).map(function (m) { return { date: m.date, v: m.cintura }; })) +
+      '</section>';
 
     var hs = S.hangs.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
     var best = hs.reduce(function (m, h) { return Math.max(m, h.sec); }, 0);
@@ -451,7 +591,30 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       html += '<p class="sub" style="margin-top:10px">Mejor marca: <b class="num">' + best + ' s</b></p><div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Tiempo</th></tr></thead><tbody>' +
         hs.slice(0, 8).map(function (h) { return '<tr><td>' + esc(shortDate(h.date)) + '</td><td class="num">' + h.sec + ' s</td></tr>'; }).join('') + '</tbody></table></div>';
     } else html += '<p class="empty">Sin registros todavía. Tu punto de partida fue de unos 10 s.</p>';
+    html += best >= 20
+      ? '<div class="note ok">Ya aguantas 20 s. Siguiente paso: bajadas lentas de dominada, 3 series de 3 a 5, subiendo con la silla y bajando en 3 a 5 s. Cámbialas por la dominada asistida en Fuerza B.</div>'
+      : '<p class="sub" style="margin-top:10px">' + (best ? 'Te faltan ' + (20 - best) + ' s para la meta de 20 s. ' : '') + 'Al llegar a 20 s pasas a las bajadas lentas de dominada.</p>';
     html += '</section>';
+
+    var fd = Object.keys(S.logs).filter(function (k) { var l = S.logs[k]; return l.energy != null || l.foot != null; }).sort().reverse().slice(0, 10);
+    html += '<section class="card"><h2>Cómo te has sentido</h2><p class="sub">Energía (1 a 5) y dolor del pie (0 a 10) de tus últimos registros.</p>';
+    if (fd.length) {
+      html += '<div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Energía</th><th>Pie</th></tr></thead><tbody>' + fd.map(function (k) {
+        var l = S.logs[k];
+        return '<tr><td>' + esc(shortDate(k)) + '</td><td class="num">' + (l.energy != null ? l.energy : '·') + '</td><td class="num' + (l.foot >= 4 ? ' pos' : '') + '">' + (l.foot != null ? l.foot : '·') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    } else html += '<p class="empty">Marca tu energía y tu pie en la pestaña Hoy y aparecerán aquí.</p>';
+    html += '</section>';
+
+    html += '<section class="card"><h2>Respaldo de datos</h2><p class="sub">Tus datos se guardan solos en tu cuenta. Este archivo es una copia extra por si algún día los necesitas restaurar.</p>' +
+      '<div class="btnrow">' + (downloadsOk ? '<button type="button" class="btn primary" data-act="export">Descargar respaldo</button>' : '') +
+      '<button type="button" class="btn" data-act="copy">Copiar datos</button></div>' +
+      '<label class="fl" for="bk-file" style="margin-top:14px">Restaurar desde un archivo de respaldo (.json)</label><input type="file" id="bk-file" accept=".json,application/json">';
+    if (pendingImport) {
+      html += '<div class="note">Este respaldo tiene ' + Object.keys(pendingImport.logs || {}).length + ' días registrados y ' + (pendingImport.measures || []).length + ' medidas. Restaurarlo reemplaza todos tus datos actuales.' +
+        '<div class="btnrow"><button type="button" class="btn primary" data-act="import-ok">Reemplazar mis datos</button><button type="button" class="btn" data-act="import-cancel">Cancelar</button></div></div>';
+    }
+    html += '<p class="err" id="bk-msg" role="status"></p><textarea id="bk-text" readonly hidden aria-label="Datos para copiar"></textarea></section>';
     return html;
   }
 
@@ -459,11 +622,12 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     return headHTML() + '<section class="card plan">' +
       '<h2>Reglas de la fase 1</h2>' +
       '<h3>Semana tipo</h3><ul><li>Lunes y jueves: Fuerza A.</li><li>Martes y viernes: Fuerza B.</li><li>Miércoles: caminata rápida y movilidad.</li><li>Sábado: caminata suave y core.</li><li>Domingo: descanso total y medidas.</li></ul>' +
-      '<h3>Cómo progresar</h3><ul><li>Cuando llegues al máximo de repeticiones en todas las series, sube repeticiones o la lentitud de la bajada.</li><li>Solo después sube el peso.</li><li>Mantén cada bloque de 2 a 4 semanas antes de cambiarlo.</li></ul>' +
+      '<h3>Cómo progresar</h3><ul><li>Cuando llegues al máximo de repeticiones en todas las series, sube repeticiones o la lentitud de la bajada.</li><li>Solo después sube el peso.</li><li>Anota el peso y las repeticiones de la última serie: la app te avisa cuando llegas al tope del rango.</li><li>La serie extra es opcional y solo con buena técnica y 2 repeticiones en reserva.</li><li>Mantén cada bloque de 2 a 4 semanas antes de cambiarlo.</li></ul>' +
       '<h3>El pie</h3><ul><li>Sin cuerda de saltar por ahora.</li><li>Calzado con buen soporte y masaje plantar con la botella.</li><li>Si el dolor empeora, para y consulta a un fisioterapeuta o médico.</li></ul>' +
       '<h3>Trabajo sentado</h3><ul><li>Levántate y camina 3 a 5 minutos cada hora y media.</li><li>Meta inicial: 7.000 pasos al día.</li></ul>' +
       '<h3>Comida (estimado)</h3><ul><li>Entre 2.100 y 2.300 kcal al día, sin comer menos.</li><li>Proteína entre 130 y 160 g.</li><li>Variar la cena: carne o granos del almuerzo, huevo con papa o arepa, atún con ensalada.</li></ul>' +
       '<h3>Para no abandonar</h3><ul><li>Hora fija y todo listo la noche anterior.</li><li>Los días de pereza, versión mínima.</li><li>No faltar dos días seguidos.</li><li>Una sola sesión al día.</li></ul>' +
+      '<h3>Tenerla como app en el celular</h3><ul><li>Android (Chrome): abre esta página, toca el menú ⋮ y elige "Añadir a pantalla de inicio".</li><li>iPhone o iPad (Safari): toca Compartir y elige "Añadir a pantalla de inicio".</li><li>Si la abriste desde la app de Claude, ábrela primero en el navegador y haz el paso desde ahí.</li></ul>' +
       '<div class="note">El cansancio constante puede tener causas que se revisan con un análisis de sangre. Si no te has hecho chequeos recientes, vale la pena pedirlos.</div></section>';
   }
 
@@ -541,6 +705,19 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       l.sets[it.id] = (c === i + 1) ? i : i + 1;
       save(); render(); return;
     }
+    if (act === 'rate') {
+      var lr = ensureLog(cur), k = b.dataset.k, v = +b.dataset.v;
+      if (lr[k] === v) delete lr[k]; else lr[k] = v;
+      save(); render(); return;
+    }
+    if (act === 'pt') { showPoint(b); return; }
+    if (act === 'export') { exportData(); return; }
+    if (act === 'copy') { copyData(); return; }
+    if (act === 'import-ok') {
+      if (pendingImport) { S = normalize(pendingImport); pendingImport = null; save(); render(); bkMsg('Respaldo restaurado.'); }
+      return;
+    }
+    if (act === 'import-cancel') { pendingImport = null; render(); return; }
     if (act === 'min') { var l2 = ensureLog(cur); l2.min = !l2.min; save(); render(); return; }
     if (act === 'habit') { var l3 = ensureLog(cur); l3.habits[b.dataset.h] = !l3.habits[b.dataset.h]; save(); render(); return; }
     if (act === 'measure') {
@@ -561,16 +738,23 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     }
   });
 
-  var noteT = null;
+  // Los campos de texto escriben en el estado al instante y guardan tras una pausa.
+  var saveT = null;
+  function saveSoon() { clearTimeout(saveT); saveT = setTimeout(function () { saveT = null; save(); }, 600); }
   document.addEventListener('input', function (e) {
-    if (e.target && e.target.dataset && e.target.dataset.note) {
-      clearTimeout(noteT);
-      var v = e.target.value, d = cur;
-      noteT = setTimeout(function () { ensureLog(d).note = v; save(); }, 500);
+    var t = e.target, ds = (t && t.dataset) || {};
+    if (ds.note) { ensureLog(cur).note = t.value; saveSoon(); }
+    else if (ds.load) {
+      var l = ensureLog(cur); l.load = l.load || {};
+      var o = l.load[ds.load] = l.load[ds.load] || {}, v = num(t.value);
+      if (v == null || v < 0 || v > 500) delete o[ds.k]; else o[ds.k] = v;
+      saveSoon();
     }
   });
-  document.addEventListener('focusout', function (e) {
-    if (e.target && e.target.dataset && e.target.dataset.note) { clearTimeout(noteT); ensureLog(cur).note = e.target.value; save(); }
+  document.addEventListener('focusout', function () { if (saveT) { clearTimeout(saveT); saveT = null; save(); } });
+  document.addEventListener('pointerover', function (e) {
+    var p = e.target.closest && e.target.closest('[data-act="pt"]');
+    if (p) showPoint(p);
   });
   app.addEventListener('toggle', function (e) {
     var d = e.target;
@@ -579,5 +763,6 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
 
   render();
   initCloud();
+  initDownloads();
 })();
 </script>
