@@ -228,7 +228,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
 
   /* ---------- Estado ---------- */
   var KEY = 'rutina-checkin-v1';
-  var S = { v: 1, logs: {}, measures: [], hangs: [], updatedAt: 0 };
+  var S = { v: 1, logs: {}, measures: [], hangs: [], waterGoal: 3500, updatedAt: 0 };
   var cur = today();
   var tab = 'hoy';
   var openTips = {};
@@ -237,7 +237,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
 
   function normalize(o) {
     o = o && typeof o === 'object' ? o : {};
-    return { v: 1, logs: o.logs || {}, measures: o.measures || [], hangs: o.hangs || [], updatedAt: o.updatedAt || 0 };
+    return { v: 1, logs: o.logs || {}, measures: o.measures || [], hangs: o.hangs || [], waterGoal: o.waterGoal || 3500, updatedAt: o.updatedAt || 0 };
   }
   try { var raw = localStorage.getItem(KEY); if (raw) S = normalize(JSON.parse(raw)); } catch (e) {}
 
@@ -406,6 +406,19 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     if (lowEnergyStreak(cur)) h += '<div class="note">Tres días seguidos con energía baja: haz la versión mínima, prioriza dormir y revisa que estés comiendo lo suficiente.</div>';
     return h + '</section>';
   }
+  function liters(ml) { return fmt(Math.round(ml / 100) / 10) + ' L'; }
+  function waterHTML(l) {
+    var w = l.water || 0, g = S.waterGoal || 3500, pct = Math.min(100, Math.round(w / g * 100));
+    var h = '<section class="card"><div class="rowbetween"><h3>Agua</h3><span class="num">' + liters(w) + ' de ' + liters(g) + '</span></div>' +
+      '<div class="bar' + (w >= g ? ' done' : '') + '" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Agua del día"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="btnrow"><button type="button" class="btn" data-act="water" data-ml="250">+250 ml</button><button type="button" class="btn" data-act="water" data-ml="500">+500 ml</button>' +
+      '<button type="button" class="btn" data-act="water" data-ml="-250" aria-label="Quitar 250 ml"' + (w ? '' : ' disabled') + '>−250 ml</button></div>';
+    if (w >= g) h += '<p class="hint">Meta de agua cumplida.</p>';
+    else if (new Date().getHours() >= 15 && cur === today() && w < g / 2) h += '<p class="sub small">Vas por debajo de la mitad y ya es tarde. Ten una botella a la vista mientras trabajas.</p>';
+    h += '<details class="how" data-tip="water-goal"' + (openTips['water-goal'] ? ' open' : '') + '><summary>Cambiar meta</summary>' +
+      '<div class="btnrow">' + [3000, 3500, 4000].map(function (m) { return '<button type="button" class="btn' + (g === m ? ' on' : '') + '" data-act="wgoal" data-ml="' + m + '" aria-pressed="' + (g === m) + '">' + liters(m) + '</button>'; }).join('') + '</div></details>';
+    return h + '</section>';
+  }
   function hoyHTML() {
     var s = sessionOf(cur), l = getLog(cur), p = progress(cur), isToday = cur === today();
     var wn = weekNum(cur);
@@ -441,7 +454,8 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
         '<div class="btnrow"><button type="button" class="btn' + (l.min ? ' on' : '') + '" data-act="min" aria-pressed="' + !!l.min + '">' + (l.min ? 'Versión mínima marcada' : 'Hoy hice la versión mínima') + '</button></div></section>';
     }
 
-    var H = [['sleep', 'Dormí cerca de 8 horas'], ['walk', 'Caminé 3-5 min cada hora y media'], ['food', 'Comí con ensalada y una fruta']];
+    var H = [['crea', 'Tomé la creatina'], ['sleep', 'Dormí cerca de 8 horas'], ['walk', 'Caminé 3-5 min cada hora y media'], ['food', 'Comí con ensalada y una fruta']];
+    html += waterHTML(l);
     html += '<section class="card"><h3>Hábitos del día</h3><div class="habits">' + H.map(function (h) {
       var on = !!l.habits[h[0]];
       return '<button type="button" class="habit' + (on ? ' on' : '') + '" data-act="habit" data-h="' + h[0] + '" aria-pressed="' + on + '"><span>' + h[1] + '</span><span class="tick">' + (on ? 'SÍ' : '·') + '</span></button>';
@@ -596,14 +610,14 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       : '<p class="sub" style="margin-top:10px">' + (best ? 'Te faltan ' + (20 - best) + ' s para la meta de 20 s. ' : '') + 'Al llegar a 20 s pasas a las bajadas lentas de dominada.</p>';
     html += '</section>';
 
-    var fd = Object.keys(S.logs).filter(function (k) { var l = S.logs[k]; return l.energy != null || l.foot != null; }).sort().reverse().slice(0, 10);
-    html += '<section class="card"><h2>Cómo te has sentido</h2><p class="sub">Energía (1 a 5) y dolor del pie (0 a 10) de tus últimos registros.</p>';
+    var fd = Object.keys(S.logs).filter(function (k) { var l = S.logs[k]; return l.energy != null || l.foot != null || l.water || (l.habits && l.habits.crea); }).sort().reverse().slice(0, 10);
+    html += '<section class="card"><h2>Cómo te has sentido</h2><p class="sub">Energía (1 a 5), dolor del pie (0 a 10), agua y creatina de tus últimos registros.</p>';
     if (fd.length) {
-      html += '<div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Energía</th><th>Pie</th></tr></thead><tbody>' + fd.map(function (k) {
+      html += '<div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Energía</th><th>Pie</th><th>Agua</th><th>Creatina</th></tr></thead><tbody>' + fd.map(function (k) {
         var l = S.logs[k];
-        return '<tr><td>' + esc(shortDate(k)) + '</td><td class="num">' + (l.energy != null ? l.energy : '·') + '</td><td class="num' + (l.foot >= 4 ? ' pos' : '') + '">' + (l.foot != null ? l.foot : '·') + '</td></tr>';
+        return '<tr><td>' + esc(shortDate(k)) + '</td><td class="num">' + (l.energy != null ? l.energy : '·') + '</td><td class="num' + (l.foot >= 4 ? ' pos' : '') + '">' + (l.foot != null ? l.foot : '·') + '</td><td class="num' + (l.water >= S.waterGoal ? ' neg' : '') + '">' + (l.water ? liters(l.water) : '·') + '</td><td>' + (l.habits && l.habits.crea ? 'Sí' : '·') + '</td></tr>';
       }).join('') + '</tbody></table></div>';
-    } else html += '<p class="empty">Marca tu energía y tu pie en la pestaña Hoy y aparecerán aquí.</p>';
+    } else html += '<p class="empty">Marca tu energía, tu pie, el agua y la creatina en la pestaña Hoy y aparecerán aquí.</p>';
     html += '</section>';
 
     html += '<section class="card"><h2>Respaldo de datos</h2><p class="sub">Tus datos se guardan solos en tu cuenta. Este archivo es una copia extra por si algún día los necesitas restaurar.</p>' +
@@ -625,6 +639,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       '<h3>Cómo progresar</h3><ul><li>Cuando llegues al máximo de repeticiones en todas las series, sube repeticiones o la lentitud de la bajada.</li><li>Solo después sube el peso.</li><li>Anota el peso y las repeticiones de la última serie: la app te avisa cuando llegas al tope del rango.</li><li>La serie extra es opcional y solo con buena técnica y 2 repeticiones en reserva.</li><li>Mantén cada bloque de 2 a 4 semanas antes de cambiarlo.</li></ul>' +
       '<h3>El pie</h3><ul><li>Sin cuerda de saltar por ahora.</li><li>Calzado con buen soporte y masaje plantar con la botella.</li><li>Si el dolor empeora, para y consulta a un fisioterapeuta o médico.</li></ul>' +
       '<h3>Trabajo sentado</h3><ul><li>Levántate y camina 3 a 5 minutos cada hora y media.</li><li>Meta inicial: 7.000 pasos al día.</li></ul>' +
+      '<h3>Agua y creatina</h3><ul><li>Meta inicial: unos 3,5 L de agua al día, repartidos desde la mañana.</li><li>Los días de entrenamiento o de mucho calor, suma 500 ml más.</li><li>Guía práctica: orina de color amarillo claro.</li><li>Toma la creatina todos los días a la misma hora, también en los días de descanso.</li></ul>' +
       '<h3>Comida (estimado)</h3><ul><li>Entre 2.100 y 2.300 kcal al día, sin comer menos.</li><li>Proteína entre 130 y 160 g.</li><li>Variar la cena: carne o granos del almuerzo, huevo con papa o arepa, atún con ensalada.</li></ul>' +
       '<h3>Para no abandonar</h3><ul><li>Hora fija y todo listo la noche anterior.</li><li>Los días de pereza, versión mínima.</li><li>No faltar dos días seguidos.</li><li>Una sola sesión al día.</li></ul>' +
       '<h3>Tenerla como app en el celular</h3><ul><li>Android (Chrome): abre esta página, toca el menú ⋮ y elige "Añadir a pantalla de inicio".</li><li>iPhone o iPad (Safari): toca Compartir y elige "Añadir a pantalla de inicio".</li><li>Si la abriste desde la app de Claude, ábrela primero en el navegador y haz el paso desde ahí.</li></ul>' +
@@ -718,6 +733,11 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       return;
     }
     if (act === 'import-cancel') { pendingImport = null; render(); return; }
+    if (act === 'water') {
+      var lw = ensureLog(cur); lw.water = Math.max(0, (lw.water || 0) + (+b.dataset.ml));
+      save(); render(); return;
+    }
+    if (act === 'wgoal') { S.waterGoal = +b.dataset.ml; save(); render(); return; }
     if (act === 'min') { var l2 = ensureLog(cur); l2.min = !l2.min; save(); render(); return; }
     if (act === 'habit') { var l3 = ensureLog(cur); l3.habits[b.dataset.h] = !l3.habits[b.dataset.h]; save(); render(); return; }
     if (act === 'measure') {
