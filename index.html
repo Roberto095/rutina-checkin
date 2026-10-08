@@ -68,6 +68,9 @@ button:focus-visible, textarea:focus-visible, input:focus-visible, summary:focus
 .chips { display: flex; gap: 10px; flex-wrap: wrap; }
 .chip { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface2); font-family: var(--font-mono); font-weight: 500; font-size: 17px; }
 .chip.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+.chip.extra { border-style: dashed; background: transparent; margin-left: 6px; }
+.chip.extra.on { background: var(--accent); border-color: var(--accent); border-style: solid; color: var(--accent-ink); }
+.extra-lbl { align-self: center; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 :root[data-theme="dark"] .chip.on { color: #06210F; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip.on { color: #06210F; } }
 .pill { min-height: 46px; padding: 0 18px; border-radius: 23px; border: 2px solid var(--line); background: var(--surface2); font-weight: 600; }
@@ -331,15 +334,17 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       '<div class="streak"><b class="num">' + streak() + '</b><span class="eyebrow">días de racha</span><div class="sync" id="sync">' + syncText() + '</div></div></div>';
   }
 
+  function maxSets(it) { return it.sets > 1 ? it.sets + 1 : it.sets; }
   function itemHTML(it, l) {
-    var c = Math.min(it.sets, l.sets[it.id] || 0);
-    var meta = it.sets > 1 ? it.sets + ' series x ' + it.reps + (it.note ? ' · ' + it.note : '') : (it.label || '');
+    var c = Math.min(maxSets(it), l.sets[it.id] || 0);
+    var meta = it.sets > 1 ? it.sets + ' series x ' + it.reps + (it.note ? ' · ' + it.note : '') + ' · +1 opcional' : (it.label || '');
     var ctl = '';
     if (it.sets > 1) {
-      for (var i = 0; i < it.sets; i++) {
-        ctl += '<button type="button" class="chip' + (i < c ? ' on' : '') + '" data-act="set" data-id="' + it.id + '" data-i="' + i + '" aria-pressed="' + (i < c) + '" aria-label="Serie ' + (i + 1) + '">' + (i + 1) + '</button>';
+      for (var i = 0; i < maxSets(it); i++) {
+        var ext = i >= it.sets;
+        ctl += '<button type="button" class="chip' + (ext ? ' extra' : '') + (i < c ? ' on' : '') + '" data-act="set" data-id="' + it.id + '" data-i="' + i + '" aria-pressed="' + (i < c) + '" aria-label="' + (ext ? 'Serie extra opcional' : 'Serie ' + (i + 1)) + '">' + (i + 1) + '</button>';
       }
-      ctl = '<div class="chips">' + ctl + '</div>';
+      ctl = '<div class="chips">' + ctl + '<span class="extra-lbl">extra</span></div>';
     } else {
       ctl = '<button type="button" class="pill' + (c ? ' on' : '') + '" data-act="set" data-id="' + it.id + '" data-i="0" aria-pressed="' + (c > 0) + '">' + (c ? 'Hecho' : 'Marcar hecho') + '</button>';
     }
@@ -368,7 +373,11 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
         '<div class="bar' + (full || l.min ? ' done' : '') + '" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + (l.min && !full ? 100 : pct) + '%"></i></div>' +
         '<div class="rowbetween"><span class="num">' + p.done + ' de ' + p.total + ' marcas</span>' +
         '<span>' + (full ? 'Sesión completa' : l.min ? 'Versión mínima cumplida' : 'En curso') + '</span></div>';
+      var extras = 0;
+      s.items.forEach(function (it) { if (it.sets > 1 && (l.sets[it.id] || 0) > it.sets) extras++; });
+      if (extras) html += '<p class="sub num" style="margin-top:6px">+' + extras + (extras === 1 ? ' serie extra' : ' series extra') + '</p>';
       if (wn >= 1 && wn <= 4) html += '<p class="sub" style="margin-top:10px">' + WEEK_TIPS[wn] + '</p>';
+      html += '<p class="sub" style="margin-top:6px">La serie extra (círculo punteado) es opcional: hazla solo si terminaste las obligatorias con buena técnica y te quedaban 2 repeticiones en reserva.</p>';
       html += '<p class="eyebrow" style="margin:14px 0 0">Descanso entre series</p><div class="btnrow">' +
         '<button type="button" class="btn" data-act="timer" data-s="45">45 s</button>' +
         '<button type="button" class="btn" data-act="timer" data-s="60">60 s</button>' +
@@ -528,7 +537,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       keepAwake();
       var s = sessionOf(cur), it = s.items.filter(function (x) { return x.id === b.dataset.id; })[0];
       if (!it) return;
-      var l = ensureLog(cur), i = +b.dataset.i, c = Math.min(it.sets, l.sets[it.id] || 0);
+      var l = ensureLog(cur), i = +b.dataset.i, c = Math.min(maxSets(it), l.sets[it.id] || 0);
       l.sets[it.id] = (c === i + 1) ? i : i + 1;
       save(); render(); return;
     }
