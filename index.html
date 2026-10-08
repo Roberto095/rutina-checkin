@@ -275,7 +275,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       if (!db || !user) return;
       var uid = await user.id();
       if (!uid) return;
-      ref = db.doc('data/users/' + uid + '/app/estado');
+      ref = db.doc('data/users/' + uid + '/estado');
       ref.onSnapshot(function (snap) {
         if (snap.exists) {
           var remote = normalize(snap.data());
