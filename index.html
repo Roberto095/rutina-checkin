@@ -94,7 +94,7 @@ details.how li { margin-bottom: 4px; }
 .habit.on .tick { color: var(--ok); }
 textarea, input[type=text] { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface2); color: var(--ink); font: inherit; padding: 10px 12px; }
 textarea { min-height: 84px; resize: vertical; margin-top: 8px; }
-label.fl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.fl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
 .fields > div { min-width: 0; }
 .err { color: var(--warn); font-size: 14px; margin: 8px 0 0; min-height: 1em; }
@@ -114,7 +114,10 @@ label.fl { display: block; font-size: 13px; font-weight: 600; color: var(--muted
 .sc { flex: 1 0 40px; max-width: 64px; min-height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface2); font-family: var(--font-mono); font-weight: 500; }
 .sc.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .sc.hi.on { background: var(--warn); border-color: var(--warn); color: var(--surface); }
-.loadrow { margin-top: 14px; }
+.loadrow { margin-top: 12px; }
+.wopts { display: flex; flex-wrap: wrap; gap: 8px; }
+.wopt { min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface2); font-weight: 600; }
+.wopt.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .small { font-size: 14px; margin-top: 6px; }
 .hint { margin: 6px 0 0; font-size: 14px; color: var(--ok); font-weight: 600; }
 .note.ok { background: var(--ok-bg); }
@@ -184,22 +187,22 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
   var SESS = {
     A: { title: 'Fuerza A', sub: 'Pierna y empuje', items: [
       WARM,
-      { id: 'a_sent', track: 'kg', name: 'Sentadilla a la silla con pesa al pecho', sets: 3, reps: '10-12', note: 'bajar en 3 s', tips: ['Pies al ancho de los hombros, puntas un poco hacia afuera.', 'Baja hasta tocar la silla sin dejarte caer, y sube empujando todo el pie contra el piso.', 'Rodillas siguen la dirección de los pies, pecho arriba, pesa pegada al pecho.'] },
-      { id: 'a_rdl', track: 'kg', name: 'Peso muerto rumano con la barra', sets: 3, reps: '12', tips: ['Rodillas apenas flexionadas y fijas.', 'Lleva la cadera hacia atrás, como cerrando una puerta con el glúteo.', 'Espalda recta, barra pegada a las piernas, baja hasta media espinilla y sube apretando glúteos.'] },
+      { id: 'a_sent', track: 'kg', w: [[0, 'Sin peso'], [2, '2 kg'], [5, '5 kg']], name: 'Sentadilla a la silla con pesa al pecho', sets: 3, reps: '10-12', note: 'bajar en 3 s', tips: ['Pies al ancho de los hombros, puntas un poco hacia afuera.', 'Baja hasta tocar la silla sin dejarte caer, y sube empujando todo el pie contra el piso.', 'Rodillas siguen la dirección de los pies, pecho arriba, pesa pegada al pecho.'] },
+      { id: 'a_rdl', track: 'kg', w: [[10, 'Barra 10 kg']], name: 'Peso muerto rumano con la barra', sets: 3, reps: '12', tips: ['Rodillas apenas flexionadas y fijas.', 'Lleva la cadera hacia atrás, como cerrando una puerta con el glúteo.', 'Espalda recta, barra pegada a las piernas, baja hasta media espinilla y sube apretando glúteos.'] },
       { id: 'a_pue', name: 'Puente de glúteos con pausa', sets: 3, reps: '15', note: 'pausa de 2 s arriba', tips: ['Tumbado, rodillas dobladas, talones cerca de los glúteos.', 'Sube la cadera apretando glúteos, sin arquear la espalda baja.'] },
       { id: 'a_fle', track: 'reps', name: 'Flexiones inclinadas (manos en mesa firme)', sets: 3, reps: '8-12', note: 'bajar en 3 s', tips: ['Cuerpo recto de cabeza a talones, abdomen firme.', 'Codos a unos 45 grados del cuerpo, no abiertos.', 'Cuanto más alta la mesa, más fácil.'] },
-      { id: 'a_pre', track: 'kg', name: 'Press de hombros con mancuernas de 5 kg', sets: 3, reps: '10-12', tips: ['De pie o sentado con la espalda recta, sin arquear la zona lumbar.', 'Sube sin chocar las mancuernas y baja hasta la altura de las orejas.'] },
+      { id: 'a_pre', track: 'kg', w: [[2, '2 kg por mano'], [5, '5 kg a una mano']], name: 'Press de hombros con mancuernas', sets: 3, reps: '10-12', tips: ['De pie o sentado con la espalda recta, sin arquear la zona lumbar.', 'Sube sin chocar las mancuernas y baja hasta la altura de las orejas.'] },
       { id: 'a_pla', name: 'Plancha', sets: 3, reps: '30 s', tips: ['Antebrazos en el piso, codos bajo los hombros.', 'Glúteos y abdomen apretados, sin hundir la cadera. Respira normal.'] },
       CARDIO, STRETCH
     ] },
     B: { title: 'Fuerza B', sub: 'Espalda y pierna', items: [
       WARM,
       { id: 'b_zan', track: 'reps', name: 'Zancada hacia atrás corta, sujeto de algo', sets: 3, reps: '8 por pierna', tips: ['Da un paso corto hacia atrás y baja la rodilla trasera hacia el piso.', 'El peso va en el talón de la pierna de adelante.', 'Sujétate de una pared o silla para no perder el equilibrio.'] },
-      { id: 'b_rem', track: 'kg', name: 'Remo inclinado con la barra', sets: 3, reps: '12', tips: ['Cadera atrás, espalda recta, torso inclinado unos 45 grados.', 'Lleva la barra hacia el ombligo juntando los omóplatos.', 'Baja con control, sin tirones.'] },
+      { id: 'b_rem', track: 'kg', w: [[10, 'Barra 10 kg']], name: 'Remo inclinado con la barra', sets: 3, reps: '12', tips: ['Cadera atrás, espalda recta, torso inclinado unos 45 grados.', 'Lleva la barra hacia el ombligo juntando los omóplatos.', 'Baja con control, sin tirones.'] },
       { id: 'b_col', name: 'Colgarte de la barra con pies en la silla', sets: 4, reps: '5-8 s', note: 'meta: 3 x 20 s', tips: ['Hombros activos, sin dejarlos caer hacia las orejas.', 'Sin balanceo. Descansa 60 s entre colgadas.', 'Para si sientes dolor en el hombro, no solo cansancio en los antebrazos.'] },
       { id: 'b_dom', track: 'reps', name: 'Dominada asistida con silla', sets: 3, reps: '5', tips: ['Pies en la silla, impúlsate con las piernas lo justo.', 'Sube con los brazos y baja lento, sin soltarte de golpe.'] },
       { id: 'b_fon', name: 'Fondos: aguantar arriba con pies en la silla', sets: 3, reps: '8-10 s', tips: ['Brazos estirados, hombros lejos de las orejas.', 'Si no puedes mantenerte, haz fondos de silla con los pies en el piso.'] },
-      { id: 'b_cur', track: 'kg', name: 'Curl de bíceps con mancuernas', sets: 3, reps: '12', tips: ['Codos pegados al cuerpo, sin balancear el torso.', 'Sube sin impulso y baja lento.'] },
+      { id: 'b_cur', track: 'kg', w: [[2, '2 kg por mano'], [5, '5 kg a una mano']], name: 'Curl de bíceps con mancuernas', sets: 3, reps: '12', tips: ['Codos pegados al cuerpo, sin balancear el torso.', 'Sube sin impulso y baja lento.'] },
       { id: 'b_rod', name: 'Elevación de rodillas tumbado', sets: 3, reps: '10', tips: ['Espalda baja pegada a la colchoneta.', 'Sube las rodillas hacia el pecho y baja sin que los pies toquen el piso.'] },
       CARDIO, STRETCH
     ] },
@@ -355,17 +358,28 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     }
     return null;
   }
+  function wLabel(it, kg) { var o = (it.w || []).filter(function (x) { return x[0] === kg; })[0]; return o ? o[1] : fmt(kg) + ' kg'; }
   function loadHTML(it, l) {
     var cv = (l.load && l.load[it.id]) || {}, prev = lastLoad(it.id, cur), top = topReps(it);
-    var h = '<div class="fields loadrow">';
-    if (it.track === 'kg') h += '<div><label class="fl" for="kg-' + it.id + '">Peso usado (kg)</label><input type="text" id="kg-' + it.id + '" inputmode="decimal" autocomplete="off" data-load="' + it.id + '" data-k="kg" value="' + (cv.kg != null ? fmt(cv.kg) : '') + '" placeholder="' + (prev && prev.kg != null ? fmt(prev.kg) : 'kg') + '"></div>';
-    h += '<div><label class="fl" for="rp-' + it.id + '">Reps de la última serie</label><input type="text" id="rp-' + it.id + '" inputmode="numeric" autocomplete="off" data-load="' + it.id + '" data-k="reps" value="' + (cv.reps != null ? cv.reps : '') + '" placeholder="' + (prev && prev.reps != null ? prev.reps : 'reps') + '"></div>';
-    if (it.track !== 'kg') h += '<div></div>';
-    h += '</div>';
+    var h = '';
+    if (it.track === 'kg') {
+      var sel = cv.kg != null ? cv.kg : prev && prev.kg != null ? prev.kg : it.w[0][0];
+      h += '<p class="fl" style="margin:14px 0 6px">Peso usado</p><div class="wopts">' + it.w.map(function (o) {
+        var on = o[0] === sel;
+        return '<button type="button" class="wopt' + (on ? ' on' : '') + '" data-act="wsel" data-id="' + it.id + '" data-kg="' + o[0] + '" aria-pressed="' + on + '">' + esc(o[1]) + '</button>';
+      }).join('') + '</div>';
+    }
+    h += '<div class="fields loadrow"><div><label class="fl" for="rp-' + it.id + '">Reps de la última serie</label><input type="text" id="rp-' + it.id + '" inputmode="numeric" autocomplete="off" data-load="' + it.id + '" data-k="reps" value="' + (cv.reps != null ? cv.reps : '') + '" placeholder="' + (prev && prev.reps != null ? prev.reps : 'reps') + '"></div><div></div></div>';
     if (prev) {
-      var txt = 'Última vez (' + shortDate(prev.date) + '): ' + (prev.kg != null ? fmt(prev.kg) + ' kg x ' : '') + (prev.reps != null ? prev.reps + ' reps' : 'sin reps');
+      var txt = 'Última vez (' + shortDate(prev.date) + '): ' + (prev.kg != null ? wLabel(it, prev.kg) + ' x ' : '') + (prev.reps != null ? prev.reps + ' reps' : 'sin reps');
       h += '<p class="sub small">' + esc(txt) + '</p>';
-      if (top && prev.reps != null && prev.reps >= top) h += '<p class="hint">Llegaste al tope del rango. Hoy baja más lento o, si la técnica está limpia, sube un poco el peso.</p>';
+      if (top && prev.reps != null && prev.reps >= top) {
+        var next = null;
+        if (it.w && prev.kg != null) next = it.w.filter(function (o) { return o[0] > prev.kg; })[0];
+        h += '<p class="hint">' + (next
+          ? 'Llegaste al tope del rango. Hoy prueba con ' + esc(next[1]) + ' y vuelve a empezar desde abajo del rango.'
+          : 'Llegaste al tope con el peso máximo que tienes. Ahora progresa así: baja en 4 a 5 s, haz una pausa de 2 s abajo o suma la serie extra.') + '</p>';
+      }
     }
     return h;
   }
@@ -734,6 +748,11 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       return;
     }
     if (act === 'import-cancel') { pendingImport = null; render(); return; }
+    if (act === 'wsel') {
+      var lk = ensureLog(cur); lk.load = lk.load || {};
+      var ok = lk.load[b.dataset.id] = lk.load[b.dataset.id] || {}; ok.kg = +b.dataset.kg;
+      save(); render(); return;
+    }
     if (act === 'water') {
       var lw = ensureLog(cur); lw.water = Math.max(0, (lw.water || 0) + (+b.dataset.ml));
       save(); render(); return;
@@ -769,6 +788,9 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       var l = ensureLog(cur); l.load = l.load || {};
       var o = l.load[ds.load] = l.load[ds.load] || {}, v = num(t.value);
       if (v == null || v < 0 || v > 500) delete o[ds.k]; else o[ds.k] = v;
+      // Si no tocó un peso, guarda el que está marcado (el de la última vez o el primero).
+      var it = sessionOf(cur).items.filter(function (x) { return x.id === ds.load; })[0];
+      if (it && it.w && o.kg == null) { var pv = lastLoad(it.id, cur); o.kg = pv && pv.kg != null ? pv.kg : it.w[0][0]; }
       saveSoon();
     }
   });
