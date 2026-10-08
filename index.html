@@ -115,6 +115,9 @@ textarea { min-height: 84px; resize: vertical; margin-top: 8px; }
 .sc.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .sc.hi.on { background: var(--warn); border-color: var(--warn); color: var(--surface); }
 .loadrow { margin-top: 12px; }
+.vlinks { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.vlinks a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--accent); color: var(--accent); font-weight: 600; text-decoration: none; }
+.vlinks a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .wopts { display: flex; flex-wrap: wrap; gap: 8px; }
 .wopt { min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface2); font-weight: 600; }
 .wopt.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
@@ -349,6 +352,27 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       '<div class="streak"><b class="num">' + streak() + '</b><span class="eyebrow">días de racha</span><div class="sync" id="sync">' + syncText() + '</div></div></div>';
   }
 
+  // Búsquedas en español para ver la técnica con un toque.
+  var Q = {
+    cal: 'calentamiento movilidad tobillo cadera hombros', car: 'cardio sin saltos bajo impacto en casa',
+    est: 'estiramiento fascia plantar gemelos con botella',
+    a_sent: 'sentadilla goblet a la silla técnica', a_rdl: 'peso muerto rumano con barra técnica',
+    a_pue: 'puente de glúteos técnica', a_fle: 'flexiones inclinadas técnica principiantes',
+    a_pre: 'press de hombros con mancuernas técnica', a_pla: 'plancha abdominal técnica correcta',
+    b_zan: 'zancada hacia atrás técnica principiantes', b_rem: 'remo inclinado con barra técnica',
+    b_col: 'colgarse de la barra hombros activos principiantes', b_dom: 'dominada asistida con silla',
+    b_fon: 'fondos en paralelas isométrico principiantes', b_cur: 'curl de bíceps con mancuernas técnica',
+    b_rod: 'elevación de rodillas acostado abdominales técnica', w_cam: 'caminata rápida postura correcta',
+    w_mov: 'rutina de movilidad articular 10 minutos', s_cam: 'caminar postura correcta',
+    s_pla: 'plancha abdominal técnica correcta', s_pue: 'puente de glúteos técnica',
+    s_rod: 'elevación de rodillas acostado abdominales técnica', s_cad: 'gato camello figura 4 postura del niño estiramiento'
+  };
+  function linksHTML(it) {
+    var q = Q[it.id]; if (!q) return '';
+    var e = encodeURIComponent(q);
+    return '<div class="vlinks"><a href="https://www.youtube.com/results?search_query=' + e + '" target="_blank" rel="noopener">Ver video</a>' +
+      '<a href="https://www.google.com/search?tbm=isch&amp;q=' + encodeURIComponent(q + ' dibujo') + '" target="_blank" rel="noopener">Ver dibujos</a></div>';
+  }
   function topReps(it) { var m = String(it.reps).match(/(\d+)(?!.*\d)/); return m ? +m[1] : null; }
   function lastLoad(id, before) {
     var ks = Object.keys(S.logs).filter(function (k) { return k < before; }).sort().reverse();
@@ -398,6 +422,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       ctl = '<button type="button" class="pill' + (c ? ' on' : '') + '" data-act="set" data-id="' + it.id + '" data-i="0" aria-pressed="' + (c > 0) + '">' + (c ? 'Hecho' : 'Marcar hecho') + '</button>';
     }
     if (it.track) ctl += loadHTML(it, l);
+    ctl += linksHTML(it);
     var tips = '<details class="how" data-tip="' + it.id + '"' + (openTips[it.id] ? ' open' : '') + '><summary>Cómo se hace</summary><ul>' +
       it.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></details>';
     return '<section class="card ex' + (c >= it.sets ? ' complete' : '') + '"><h3>' + esc(it.name) + '</h3><p class="meta">' + esc(meta) + '</p>' + ctl + tips + '</section>';
