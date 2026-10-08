@@ -115,6 +115,9 @@ textarea { min-height: 84px; resize: vertical; margin-top: 8px; }
 .sc.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .sc.hi.on { background: var(--warn); border-color: var(--warn); color: var(--surface); }
 .loadrow { margin-top: 12px; }
+.rounds { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.round { display: inline-flex; align-items: center; gap: 4px; padding-left: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface2); }
+.round button { min-width: 40px; min-height: 40px; border: 0; background: none; color: var(--muted); font-size: 20px; }
 .vlinks { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .vlinks a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--accent); color: var(--accent); font-weight: 600; text-decoration: none; }
 .vlinks a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -445,6 +448,50 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     if (lowEnergyStreak(cur)) h += '<div class="note">Tres días seguidos con energía baja: haz la versión mínima, prioriza dormir y revisa que estés comiendo lo suficiente.</div>';
     return h + '</section>';
   }
+  function ropeProto() {
+    var w = weekNum(cur);
+    return w >= 3 ? { r: 6, w: 45, rest: 60 } : { r: 5, w: 30, rest: 60 };
+  }
+  function ropeBlock(d) {
+    var f = getLog(d).foot, y = getLog(addDays(d, -1)).foot;
+    if (f == null) return 'pending';
+    if (f >= 4) return 'today';
+    if (y != null && y >= 4) return 'yesterday';
+    return null;
+  }
+  function ropeTotal(l) { return (l.rope || []).reduce(function (a, n) { return a + n; }, 0); }
+  function ropeHTML(l) {
+    var P = ropeProto(), rounds = l.rope || [], tot = ropeTotal(l), blk = ropeBlock(cur);
+    var prev = null, best = 0;
+    Object.keys(S.logs).sort().forEach(function (k) {
+      var t = ropeTotal(S.logs[k]);
+      if (t > best) best = t;
+      if (t && k < cur) prev = { date: k, t: t };
+    });
+    var h = '<section class="card"><div class="rowbetween"><h3>Cuerda</h3><span class="num">' + tot + ' saltos</span></div>' +
+      '<p class="sub">' + P.r + ' rondas de ' + P.w + ' s con ' + P.rest + ' s de descanso. Saltos bajos, sobre la punta del pie, con tenis y en piso firme.</p>';
+    if (blk === 'pending') h += '<div class="note">Marca primero el dolor del pie arriba (un toque). Con 0 a 3 hay cuerda; con 4 o más, hoy no.</div>';
+    else if (blk) {
+      h += '<div class="note">' + (blk === 'today' ? 'Hoy el pie está en ' + l.foot + '.' : 'Ayer el pie llegó a ' + getLog(addDays(cur, -1)).foot + '.') +
+        ' Hoy nada de cuerda: cámbiala por 5 minutos de sombra de boxeo sin saltos.</div>';
+    } else {
+      h += '<div class="btnrow"><button type="button" class="btn primary" data-act="rope-go">Iniciar intervalos</button></div>' +
+        '<div class="fields loadrow"><div><label class="fl" for="rope-n">Saltos de la ronda ' + (rounds.length + 1) + '</label><input type="text" id="rope-n" inputmode="numeric" autocomplete="off" placeholder="' + (rounds.length ? rounds[rounds.length - 1] : '40') + '"></div>' +
+        '<div style="align-self:end"><button type="button" class="btn" style="width:100%" data-act="rope-add">Agregar ronda</button></div></div>' +
+        '<p class="err" id="rope-err" role="alert"></p>';
+    }
+    if (rounds.length) {
+      h += '<div class="rounds">' + rounds.map(function (n, i) {
+        return '<span class="round"><span class="num">R' + (i + 1) + ' · ' + n + '</span><button type="button" data-act="rope-del" data-i="' + i + '" aria-label="Borrar ronda ' + (i + 1) + '">×</button></span>';
+      }).join('') + '</div>';
+      if (rounds.length >= P.r) h += '<p class="hint">Rondas completas. Si mañana el pie amanece peor, descansa la cuerda 2 días.</p>';
+    }
+    var foot = [];
+    if (prev) foot.push('Última vez: ' + prev.t + ' saltos (' + shortDate(prev.date) + ')');
+    if (best) foot.push('Mejor día: ' + best + ' saltos');
+    if (foot.length) h += '<p class="sub small">' + esc(foot.join(' · ')) + '</p>';
+    return h + '</section>';
+  }
   function liters(ml) { return fmt(Math.round(ml / 100) / 10) + ' L'; }
   function waterHTML(l) {
     var w = l.water || 0, g = S.waterGoal || 5000, pct = Math.min(100, Math.round(w / g * 100));
@@ -495,6 +542,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     }
 
     var H = [['crea', 'Tomé la creatina'], ['sleep', 'Dormí cerca de 8 horas'], ['walk', 'Caminé 3-5 min cada hora y media'], ['food', 'Comí con ensalada y una fruta']];
+    html += ropeHTML(l);
     html += waterHTML(l);
     html += '<section class="card"><h3>Hábitos del día</h3><div class="habits">' + H.map(function (h) {
       var on = !!l.habits[h[0]];
@@ -634,6 +682,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     html += '<section class="card"><h2>Tendencia</h2>' +
       chartHTML('peso', 'Peso', 'kg', asc.filter(function (m) { return m.peso != null; }).map(function (m) { return { date: m.date, v: m.peso }; })) +
       chartHTML('cin', 'Cintura', 'cm', asc.filter(function (m) { return m.cintura != null; }).map(function (m) { return { date: m.date, v: m.cintura }; })) +
+      chartHTML('rope', 'Saltos de cuerda por día', 'saltos', Object.keys(S.logs).sort().filter(function (k) { return ropeTotal(S.logs[k]) > 0; }).map(function (k) { return { date: k, v: ropeTotal(S.logs[k]) }; })) +
       '</section>';
 
     var hs = S.hangs.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
@@ -677,7 +726,7 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
       '<h2>Reglas de la fase 1</h2>' +
       '<h3>Semana tipo</h3><ul><li>Lunes y jueves: Fuerza A.</li><li>Martes y viernes: Fuerza B.</li><li>Miércoles: caminata rápida y movilidad.</li><li>Sábado: caminata suave y core.</li><li>Domingo: descanso total y medidas.</li></ul>' +
       '<h3>Cómo progresar</h3><ul><li>Cuando llegues al máximo de repeticiones en todas las series, sube repeticiones o la lentitud de la bajada.</li><li>Solo después sube el peso.</li><li>Anota el peso y las repeticiones de la última serie: la app te avisa cuando llegas al tope del rango.</li><li>La serie extra es opcional y solo con buena técnica y 2 repeticiones en reserva.</li><li>Mantén cada bloque de 2 a 4 semanas antes de cambiarlo.</li></ul>' +
-      '<h3>El pie</h3><ul><li>Sin cuerda de saltar por ahora.</li><li>Calzado con buen soporte y masaje plantar con la botella.</li><li>Si el dolor empeora, para y consulta a un fisioterapeuta o médico.</li></ul>' +
+      '<h3>El pie</h3><ul><li>Cuerda todos los días mientras el pie esté entre 0 y 3 y ayer no haya llegado a 4. La app lo revisa por ti.</li><li>Sigue con el masaje de la botella aunque ya no duela: es lo que te está funcionando.</li><li>Saltos bajos sobre la punta del pie, con tenis y en piso firme; evita el cemento si puedes.</li><li>Si al día siguiente el pie amanece peor, descansa la cuerda 2 días.</li><li>Semanas 1 y 2: 5 rondas de 30 s. Semanas 3 y 4: 6 rondas de 45 s.</li><li>Calzado con buen soporte y masaje plantar con la botella.</li><li>Si el dolor empeora, para y consulta a un fisioterapeuta o médico.</li></ul>' +
       '<h3>Trabajo sentado</h3><ul><li>Levántate y camina 3 a 5 minutos cada hora y media.</li><li>Meta inicial: 7.000 pasos al día.</li></ul>' +
       '<h3>Agua y creatina</h3><ul><li>Meta: 5 L de agua al día, repartidos desde que te levantas, más o menos un vaso cada hora.</li><li>Nunca más de 1 L en una hora, y nada de grandes cantidades 1 o 2 horas antes de dormir.</li><li>Come con sal normal; no tomes el agua de golpe.</li><li>Si aparecen dolor de cabeza, náuseas, hinchazón o confusión, para de tomar y busca atención médica.</li><li>Guía práctica: orina de color amarillo claro.</li><li>Toma la creatina todos los días a la misma hora, también en los días de descanso.</li></ul>' +
       '<h3>Comida (estimado)</h3><ul><li>Entre 2.100 y 2.300 kcal al día, sin comer menos.</li><li>Proteína entre 130 y 160 g.</li><li>Variar la cena: carne o granos del almuerzo, huevo con papa o arepa, atún con ensalada.</li></ul>' +
@@ -720,19 +769,38 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     if (t) t.textContent = mmss(left);
     if (left === 0) {
       beep();
+      if (timer.next) { var nx = timer.next; clearInterval(tick); tick = null; nx(); return; }
       timerEl.className = 'timer finished';
-      timerEl.querySelector('.tl').textContent = 'Listo, siguiente serie';
+      timerEl.querySelector('.tl').textContent = timer.doneText || 'Listo, siguiente serie';
       clearInterval(tick); tick = null;
       setTimeout(function () { if (timer && timer.end <= Date.now()) stopTimer(); }, 5000);
     }
   }
-  function startTimer(sec) {
+  function startTimer(sec, label, next, doneText) {
     unlockAudio();
-    timer = { end: Date.now() + sec * 1000 };
+    timer = { end: Date.now() + sec * 1000, next: next || null, doneText: doneText || null };
     timerEl.className = 'timer';
-    timerEl.innerHTML = '<div class="timer-inner"><span class="tl">Descanso</span><strong id="t-time">' + mmss(sec) + '</strong><button type="button" data-act="tstop">Parar</button></div>';
+    timerEl.innerHTML = '<div class="timer-inner"><span class="tl">' + esc(label || 'Descanso') + '</span><strong id="t-time">' + mmss(sec) + '</strong><button type="button" data-act="tstop">Parar</button></div>';
     timerEl.hidden = false;
     clearInterval(tick); tick = setInterval(updateTimer, 250);
+  }
+
+  function addRope() {
+    var el = document.getElementById('rope-n'), n = el ? num(el.value) : null, err = document.getElementById('rope-err');
+    if (n == null || n < 1 || n > 400 || Math.round(n) !== n) { if (err) err.textContent = 'Escribe cuántos saltos hiciste en la ronda, por ejemplo 45.'; return; }
+    var l = ensureLog(cur); l.rope = (l.rope || []).concat([n]);
+    save(); render();
+    var nx = document.getElementById('rope-n'); if (nx) nx.focus();
+  }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target && e.target.id === 'rope-n') { e.preventDefault(); addRope(); } });
+  function startIntervals(P) {
+    keepAwake();
+    function round(i) {
+      startTimer(P.w, 'Salta · ronda ' + i + ' de ' + P.r, i < P.r ? function () {
+        startTimer(P.rest, 'Descansa y anota tus saltos', function () { round(i + 1); });
+      } : null, 'Cuerda terminada. Anota la última ronda.');
+    }
+    round(1);
   }
 
   /* ---------- Eventos ---------- */
@@ -776,6 +844,12 @@ th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: v
     if (act === 'wsel') {
       var lk = ensureLog(cur); lk.load = lk.load || {};
       var ok = lk.load[b.dataset.id] = lk.load[b.dataset.id] || {}; ok.kg = +b.dataset.kg;
+      save(); render(); return;
+    }
+    if (act === 'rope-go') { startIntervals(ropeProto()); return; }
+    if (act === 'rope-add') { addRope(); return; }
+    if (act === 'rope-del') {
+      var ld = ensureLog(cur); ld.rope = (ld.rope || []).filter(function (_, i) { return i !== +b.dataset.i; });
       save(); render(); return;
     }
     if (act === 'water') {
