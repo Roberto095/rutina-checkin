@@ -1,0 +1,574 @@
+<title>Check-in Rutina</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: una columna tipo cuaderno de entrenamiento, barra de pestañas abajo para usar con el pulgar. */
+:root {
+  --bg: #EDEFF2;
+  --surface: #FFFFFF;
+  --surface2: #F4F6F8;
+  --ink: #14181D;
+  --muted: #56626E;
+  --line: #D3D9DF;
+  --accent: #1B4FD8;
+  --accent-ink: #FFFFFF;
+  --ok: #2B7A4B;
+  --ok-bg: #DDF0E5;
+  --warn: #9A5B00;
+  --warn-bg: #FAEBD0;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151A; --surface: #1A2027; --surface2: #222A33; --ink: #E9EDF1; --muted: #95A1AD;
+    --line: #2C353F; --accent: #7B9DFF; --accent-ink: #0A111F; --ok: #5CC48A; --ok-bg: #1B3A29;
+    --warn: #E3A94F; --warn-bg: #3A2D14; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151A; --surface: #1A2027; --surface2: #222A33; --ink: #E9EDF1; --muted: #95A1AD;
+  --line: #2C353F; --accent: #7B9DFF; --accent-ink: #0A111F; --ok: #5CC48A; --ok-bg: #1B3A29;
+  --warn: #E3A94F; --warn-bg: #3A2D14; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+  padding-inline: 16px; padding-block: 16px 150px;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 640px; margin-inline: auto; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.top h1 { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1; margin: 4px 0 0; text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
+.streak { text-align: right; min-width: 0; }
+.streak b { font-family: var(--font-display); font-size: 34px; line-height: 1; display: block; }
+.sync { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.daynav { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.daynav .label { flex: 1; text-align: center; font-weight: 600; min-width: 0; }
+.iconbtn { width: 46px; height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 22px; line-height: 1; }
+.linkbtn { background: none; border: 0; color: var(--accent); font-weight: 600; padding: 8px 4px; min-height: 40px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+.card h2 { font-family: var(--font-display); font-size: 26px; line-height: 1.05; margin: 0; text-transform: uppercase; font-weight: 700; }
+.card h3 { margin: 0; font-size: 17px; line-height: 1.25; font-weight: 600; text-wrap: balance; }
+.sub { color: var(--muted); margin: 2px 0 0; }
+.bar { height: 10px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--line); overflow: hidden; margin: 12px 0 6px; }
+.bar > i { display: block; height: 100%; background: var(--accent); }
+.bar.done > i { background: var(--ok); }
+.rowbetween { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+
+.ex { padding: 14px; }
+.ex.complete { border-color: var(--ok); }
+.ex .meta { color: var(--muted); font-size: 15px; margin: 2px 0 10px; }
+.chips { display: flex; gap: 10px; flex-wrap: wrap; }
+.chip { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface2); font-family: var(--font-mono); font-weight: 500; font-size: 17px; }
+.chip.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+:root[data-theme="dark"] .chip.on { color: #06210F; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip.on { color: #06210F; } }
+.pill { min-height: 46px; padding: 0 18px; border-radius: 23px; border: 2px solid var(--line); background: var(--surface2); font-weight: 600; }
+.pill.on { background: var(--ok); border-color: var(--ok); color: #fff; }
+:root[data-theme="dark"] .pill.on { color: #06210F; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pill.on { color: #06210F; } }
+details.how { margin-top: 10px; }
+details.how summary { color: var(--accent); font-weight: 600; cursor: pointer; min-height: 32px; display: flex; align-items: center; }
+details.how ul { margin: 6px 0 0; padding-left: 20px; color: var(--ink); }
+details.how li { margin-bottom: 4px; }
+
+.btn { min-height: 48px; padding: 0 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.on { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.btnrow .btn { flex: 1 1 90px; }
+.habits { display: grid; gap: 8px; margin-top: 10px; }
+.habit { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; text-align: left; min-height: 52px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); }
+.habit.on { background: var(--ok-bg); border-color: var(--ok); }
+.habit .tick { font-family: var(--font-mono); font-weight: 500; color: var(--muted); flex: none; }
+.habit.on .tick { color: var(--ok); }
+textarea, input[type=text] { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface2); color: var(--ink); font: inherit; padding: 10px 12px; }
+textarea { min-height: 84px; resize: vertical; margin-top: 8px; }
+label.fl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.fields > div { min-width: 0; }
+.err { color: var(--warn); font-size: 14px; margin: 8px 0 0; min-height: 1em; }
+.note { background: var(--warn-bg); color: var(--ink); border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 15px; }
+
+.week { display: grid; gap: 8px; }
+.wday { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; text-align: left; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.wday.sel { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.wday .dn { font-weight: 600; text-transform: capitalize; }
+.wday .ds { color: var(--muted); font-size: 14px; }
+.tag { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; background: var(--surface2); color: var(--muted); border: 1px solid var(--line); white-space: nowrap; }
+.tag.done { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
+.tag.part { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.wday .bar { grid-column: 1 / -1; margin: 4px 0 0; height: 6px; }
+
+.tablewrap { overflow-x: auto; margin-top: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.neg { color: var(--ok); } .pos { color: var(--warn); }
+.empty { color: var(--muted); margin: 10px 0 0; }
+
+.plan h3 { margin-top: 14px; }
+.plan h3:first-child { margin-top: 0; }
+.plan ul { margin: 6px 0 0; padding-left: 20px; }
+.plan li { margin-bottom: 4px; }
+
+.timer { position: fixed; left: 0; right: 0; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); padding-inline: 16px; z-index: 5; }
+.timer-inner { max-width: 640px; margin-inline: auto; display: flex; align-items: center; gap: 12px; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 8px 8px 8px 16px; }
+.timer-inner .tl { font-weight: 600; flex: 1; min-width: 0; }
+.timer-inner strong { font-family: var(--font-mono); font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.timer-inner button { min-height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid currentColor; background: transparent; color: inherit; font-weight: 600; }
+.timer.finished .timer-inner { background: var(--ok); color: #fff; }
+
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 4px; z-index: 6; }
+.tabs button { flex: 1; min-height: 52px; border: 0; background: none; border-radius: 8px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tabs button[aria-current="page"] { color: var(--accent); background: var(--surface2); }
+@media (prefers-reduced-motion: no-preference) { .bar > i { transition: width .25s ease; } }
+</style>
+
+<div class="wrap"><main id="app"></main></div>
+<div id="timer" class="timer" hidden></div>
+<nav class="tabs" id="tabs" aria-label="Secciones">
+  <button type="button" data-act="tab" data-tab="hoy">Hoy</button>
+  <button type="button" data-act="tab" data-tab="semana">Semana</button>
+  <button type="button" data-act="tab" data-tab="progreso">Progreso</button>
+  <button type="button" data-act="tab" data-tab="plan">Plan</button>
+</nav>
+
+<script>
+(function () {
+  'use strict';
+
+  var DAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  var MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  var START = '2026-10-05'; // lunes de la semana 1
+
+  /* ---------- Fechas ---------- */
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parse(s) { var p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2], 12); }
+  function addDays(s, n) { var d = parse(s); d.setDate(d.getDate() + n); return ymd(d); }
+  function diffDays(a, b) { return Math.round((parse(a) - parse(b)) / 864e5); }
+  function today() { return ymd(new Date()); }
+  function longDate(s) { var d = parse(s); return DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+  function shortDate(s) { var d = parse(s); return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+  function weekNum(s) { return Math.floor(diffDays(s, START) / 7) + 1; }
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  /* ---------- Plan fase 1 ---------- */
+  var WARM = { id: 'cal', name: 'Calentamiento', sets: 1, label: '8 min', tips: ['Círculos de tobillo, cadera y hombros, 30 s cada uno.', 'Estira los gemelos contra la pared, 30 s por pierna.', 'Marcha en sitio 2 min, apoyando bien todo el pie.'] };
+  var CARDIO = { id: 'car', name: 'Cardio sin impacto', sets: 1, label: '8 min', tips: ['Marcha con rodillas altas o sombra de boxeo, sin saltos.', 'Ritmo en el que puedas decir frases cortas.'] };
+  var STRETCH = { id: 'est', name: 'Estiramiento y cuidado del pie', sets: 1, label: '4 min', tips: ['Piernas y espalda, 20 a 30 s por estiramiento.', 'Masaje plantar con la botella, 2 min por pie.'] };
+
+  var SESS = {
+    A: { title: 'Fuerza A', sub: 'Pierna y empuje', items: [
+      WARM,
+      { id: 'a_sent', name: 'Sentadilla a la silla con pesa al pecho', sets: 3, reps: '10-12', note: 'bajar en 3 s', tips: ['Pies al ancho de los hombros, puntas un poco hacia afuera.', 'Baja hasta tocar la silla sin dejarte caer, y sube empujando todo el pie contra el piso.', 'Rodillas siguen la dirección de los pies, pecho arriba, pesa pegada al pecho.'] },
+      { id: 'a_rdl', name: 'Peso muerto rumano con la barra', sets: 3, reps: '12', tips: ['Rodillas apenas flexionadas y fijas.', 'Lleva la cadera hacia atrás, como cerrando una puerta con el glúteo.', 'Espalda recta, barra pegada a las piernas, baja hasta media espinilla y sube apretando glúteos.'] },
+      { id: 'a_pue', name: 'Puente de glúteos con pausa', sets: 3, reps: '15', note: 'pausa de 2 s arriba', tips: ['Tumbado, rodillas dobladas, talones cerca de los glúteos.', 'Sube la cadera apretando glúteos, sin arquear la espalda baja.'] },
+      { id: 'a_fle', name: 'Flexiones inclinadas (manos en mesa firme)', sets: 3, reps: '8-12', note: 'bajar en 3 s', tips: ['Cuerpo recto de cabeza a talones, abdomen firme.', 'Codos a unos 45 grados del cuerpo, no abiertos.', 'Cuanto más alta la mesa, más fácil.'] },
+      { id: 'a_pre', name: 'Press de hombros con mancuernas de 5 kg', sets: 3, reps: '10-12', tips: ['De pie o sentado con la espalda recta, sin arquear la zona lumbar.', 'Sube sin chocar las mancuernas y baja hasta la altura de las orejas.'] },
+      { id: 'a_pla', name: 'Plancha', sets: 3, reps: '30 s', tips: ['Antebrazos en el piso, codos bajo los hombros.', 'Glúteos y abdomen apretados, sin hundir la cadera. Respira normal.'] },
+      CARDIO, STRETCH
+    ] },
+    B: { title: 'Fuerza B', sub: 'Espalda y pierna', items: [
+      WARM,
+      { id: 'b_zan', name: 'Zancada hacia atrás corta, sujeto de algo', sets: 3, reps: '8 por pierna', tips: ['Da un paso corto hacia atrás y baja la rodilla trasera hacia el piso.', 'El peso va en el talón de la pierna de adelante.', 'Sujétate de una pared o silla para no perder el equilibrio.'] },
+      { id: 'b_rem', name: 'Remo inclinado con la barra', sets: 3, reps: '12', tips: ['Cadera atrás, espalda recta, torso inclinado unos 45 grados.', 'Lleva la barra hacia el ombligo juntando los omóplatos.', 'Baja con control, sin tirones.'] },
+      { id: 'b_col', name: 'Colgarte de la barra con pies en la silla', sets: 4, reps: '5-8 s', note: 'meta: 3 x 20 s', tips: ['Hombros activos, sin dejarlos caer hacia las orejas.', 'Sin balanceo. Descansa 60 s entre colgadas.', 'Para si sientes dolor en el hombro, no solo cansancio en los antebrazos.'] },
+      { id: 'b_dom', name: 'Dominada asistida con silla', sets: 3, reps: '5', tips: ['Pies en la silla, impúlsate con las piernas lo justo.', 'Sube con los brazos y baja lento, sin soltarte de golpe.'] },
+      { id: 'b_fon', name: 'Fondos: aguantar arriba con pies en la silla', sets: 3, reps: '8-10 s', tips: ['Brazos estirados, hombros lejos de las orejas.', 'Si no puedes mantenerte, haz fondos de silla con los pies en el piso.'] },
+      { id: 'b_cur', name: 'Curl de bíceps con mancuernas', sets: 3, reps: '12', tips: ['Codos pegados al cuerpo, sin balancear el torso.', 'Sube sin impulso y baja lento.'] },
+      { id: 'b_rod', name: 'Elevación de rodillas tumbado', sets: 3, reps: '10', tips: ['Espalda baja pegada a la colchoneta.', 'Sube las rodillas hacia el pecho y baja sin que los pies toquen el piso.'] },
+      CARDIO, STRETCH
+    ] },
+    W: { title: 'Caminata rápida', sub: 'Recuperación activa', items: [
+      { id: 'w_cam', name: 'Caminata rápida', sets: 1, label: '40-50 min', tips: ['Calzado con buen soporte.', 'Paso en el que puedas hablar con frases cortas.'] },
+      { id: 'w_mov', name: 'Movilidad', sets: 1, label: '10 min', tips: ['Tobillos, cadera, columna y hombros, movimientos lentos.'] },
+      STRETCH
+    ] },
+    S: { title: 'Caminata suave y core', sub: 'Movilidad y abdomen', items: [
+      { id: 's_cam', name: 'Caminata suave', sets: 1, label: '30-40 min', tips: ['Ritmo cómodo, sin buscar cansarte.'] },
+      { id: 's_pla', name: 'Plancha', sets: 3, reps: '30 s', tips: ['Antebrazos en el piso, glúteos y abdomen apretados.'] },
+      { id: 's_pue', name: 'Puente de glúteos', sets: 3, reps: '15', tips: ['Sube la cadera apretando glúteos, pausa de 2 s arriba.'] },
+      { id: 's_rod', name: 'Elevación de rodillas tumbado', sets: 3, reps: '10', tips: ['Espalda baja pegada a la colchoneta.'] },
+      { id: 's_cad', name: 'Movilidad de cadera', sets: 1, label: '5 min', tips: ['Gato-camello, 10 repeticiones.', 'Figura 4 para el glúteo, 45 s por lado.', 'Postura del niño, 45 s.'] },
+      STRETCH
+    ] },
+    R: { title: 'Descanso total', sub: 'Hoy se recupera el cuerpo', items: [] }
+  };
+  var WEEK = { 1: 'A', 2: 'B', 3: 'W', 4: 'A', 5: 'B', 6: 'S', 0: 'R' };
+  var WEEK_TIPS = {
+    1: 'Semana 1: aprende la técnica. Termina cada serie con 2 repeticiones de reserva.',
+    2: 'Semana 2: mantén la técnica y alarga la bajada a 4 s en los ejercicios con tempo.',
+    3: 'Semana 3: llega al máximo del rango de repeticiones en todas las series.',
+    4: 'Semana 4: si todo va bien, añade una serie a dos ejercicios o un poco más de peso.'
+  };
+
+  /* ---------- Estado ---------- */
+  var KEY = 'rutina-checkin-v1';
+  var S = { v: 1, logs: {}, measures: [], hangs: [], updatedAt: 0 };
+  var cur = today();
+  var tab = 'hoy';
+  var openTips = {};
+  var syncState = 'local';
+  var ref = null, writing = false, dirty = false, wt = null, st = null;
+
+  function normalize(o) {
+    o = o && typeof o === 'object' ? o : {};
+    return { v: 1, logs: o.logs || {}, measures: o.measures || [], hangs: o.hangs || [], updatedAt: o.updatedAt || 0 };
+  }
+  try { var raw = localStorage.getItem(KEY); if (raw) S = normalize(JSON.parse(raw)); } catch (e) {}
+
+  function getLog(d) { return S.logs[d] || { sets: {}, min: false, habits: {}, note: '' }; }
+  function ensureLog(d) {
+    var l = S.logs[d];
+    if (!l) l = S.logs[d] = { sets: {}, min: false, habits: {}, note: '' };
+    l.sets = l.sets || {}; l.habits = l.habits || {};
+    return l;
+  }
+  function save() {
+    S.updatedAt = Date.now();
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+    pushSoon();
+  }
+
+  /* ---------- Nube (db) con respaldo local ---------- */
+  function setSync(s) {
+    syncState = s;
+    var el = document.getElementById('sync');
+    if (el) el.textContent = syncText();
+  }
+  function syncText() {
+    return syncState === 'ok' ? 'Guardado en tu cuenta' : syncState === 'saving' ? 'Guardando…' : 'Solo en este dispositivo';
+  }
+  function pushSoon() {
+    if (!ref) return;
+    dirty = true; clearTimeout(wt);
+    setSync('saving');
+    wt = setTimeout(flush, 700);
+  }
+  async function flush() {
+    if (writing || !ref || !dirty) return;
+    writing = true; dirty = false;
+    try {
+      await ref.set(JSON.parse(JSON.stringify(S)));
+      setSync(dirty ? 'saving' : 'ok');
+    } catch (e) {
+      setSync('local');
+      if (e && e.code === 'unavailable') { dirty = true; clearTimeout(st); st = setTimeout(function () { st = null; flush(); }, 4000); }
+    }
+    writing = false;
+    if (dirty && !st) flush();
+  }
+  async function initCloud() {
+    if (!window.claude || !window.claude.use) return;
+    try {
+      var caps = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      var db = caps[0], user = caps[1];
+      if (!db || !user) return;
+      var uid = await user.id();
+      if (!uid) return;
+      ref = db.doc('data/users/' + uid + '/app/estado');
+      ref.onSnapshot(function (snap) {
+        if (snap.exists) {
+          var remote = normalize(snap.data());
+          if (remote.updatedAt > S.updatedAt) {
+            S = remote;
+            try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+            var a = document.activeElement;
+            if (!a || (a.tagName !== 'TEXTAREA' && a.tagName !== 'INPUT')) render();
+          } else if (S.updatedAt > remote.updatedAt) { pushSoon(); }
+          else { setSync('ok'); }
+        } else if (S.updatedAt > 0) { pushSoon(); }
+        else { setSync('ok'); }
+      }, function () { setSync('local'); });
+    } catch (e) { /* sin nube: queda el respaldo local */ }
+  }
+
+  /* ---------- Cálculos ---------- */
+  function sessionOf(d) { return SESS[WEEK[parse(d).getDay()]]; }
+  function progress(d) {
+    var s = sessionOf(d), l = getLog(d), total = 0, done = 0;
+    s.items.forEach(function (it) { total += it.sets; done += Math.min(it.sets, l.sets[it.id] || 0); });
+    return { done: done, total: total };
+  }
+  function status(d) {
+    var s = sessionOf(d);
+    if (!s.items.length) return 'rest';
+    var l = getLog(d), p = progress(d);
+    if (p.done === p.total && p.total > 0) return 'done';
+    if (l.min) return 'min';
+    if (p.done > 0) return 'part';
+    return d > today() ? 'future' : 'pend';
+  }
+  function streak() {
+    var n = 0, t = today(), d = t;
+    for (var i = 0; i < 400; i++) {
+      if (d < START) break;
+      var st2 = status(d);
+      if (st2 === 'rest') { d = addDays(d, -1); continue; }
+      if (st2 === 'done' || st2 === 'min') n++;
+      else if (d !== t) break;
+      d = addDays(d, -1);
+    }
+    return n;
+  }
+
+  /* ---------- Vistas ---------- */
+  var app = document.getElementById('app');
+
+  function headHTML() {
+    var w = weekNum(cur);
+    var phase = w < 1 ? 'Antes de empezar' : w > 4 ? 'Fase 1 terminada' : 'Fase 1 · semana ' + w + ' de 4';
+    return '<div class="top"><div><div class="eyebrow">' + phase + '</div><h1>Check-in Rutina</h1></div>' +
+      '<div class="streak"><b class="num">' + streak() + '</b><span class="eyebrow">días de racha</span><div class="sync" id="sync">' + syncText() + '</div></div></div>';
+  }
+
+  function itemHTML(it, l) {
+    var c = Math.min(it.sets, l.sets[it.id] || 0);
+    var meta = it.sets > 1 ? it.sets + ' series x ' + it.reps + (it.note ? ' · ' + it.note : '') : (it.label || '');
+    var ctl = '';
+    if (it.sets > 1) {
+      for (var i = 0; i < it.sets; i++) {
+        ctl += '<button type="button" class="chip' + (i < c ? ' on' : '') + '" data-act="set" data-id="' + it.id + '" data-i="' + i + '" aria-pressed="' + (i < c) + '" aria-label="Serie ' + (i + 1) + '">' + (i + 1) + '</button>';
+      }
+      ctl = '<div class="chips">' + ctl + '</div>';
+    } else {
+      ctl = '<button type="button" class="pill' + (c ? ' on' : '') + '" data-act="set" data-id="' + it.id + '" data-i="0" aria-pressed="' + (c > 0) + '">' + (c ? 'Hecho' : 'Marcar hecho') + '</button>';
+    }
+    var tips = '<details class="how" data-tip="' + it.id + '"' + (openTips[it.id] ? ' open' : '') + '><summary>Cómo se hace</summary><ul>' +
+      it.tips.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></details>';
+    return '<section class="card ex' + (c >= it.sets ? ' complete' : '') + '"><h3>' + esc(it.name) + '</h3><p class="meta">' + esc(meta) + '</p>' + ctl + tips + '</section>';
+  }
+
+  function hoyHTML() {
+    var s = sessionOf(cur), l = getLog(cur), p = progress(cur), isToday = cur === today();
+    var wn = weekNum(cur);
+    var html = headHTML();
+    html += '<div class="daynav"><button type="button" class="iconbtn" data-act="day" data-n="-1" aria-label="Día anterior">‹</button>' +
+      '<div class="label">' + (isToday ? 'Hoy · ' : '') + esc(longDate(cur)) + '</div>' +
+      '<button type="button" class="iconbtn" data-act="day" data-n="1" aria-label="Día siguiente">›</button></div>';
+    if (!isToday) html += '<div style="text-align:center;margin:-6px 0 8px"><button type="button" class="linkbtn" data-act="gotoday">Volver a hoy</button></div>';
+
+    if (!s.items.length) {
+      html += '<section class="card"><h2>' + s.title + '</h2><p class="sub">' + s.sub + '</p>' +
+        '<p>Hoy no se entrena. Duerme tus 8 horas, camina un poco y mide tu peso y tu cintura en la pestaña Progreso.</p>' +
+        '<div class="btnrow"><button type="button" class="btn primary" data-act="tab" data-tab="progreso">Ir a medirme</button></div></section>';
+    } else {
+      var pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+      var full = p.done === p.total && p.total > 0;
+      html += '<section class="card"><div class="rowbetween"><h2>' + s.title + '</h2><span class="eyebrow">' + s.sub + '</span></div>' +
+        '<div class="bar' + (full || l.min ? ' done' : '') + '" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + (l.min && !full ? 100 : pct) + '%"></i></div>' +
+        '<div class="rowbetween"><span class="num">' + p.done + ' de ' + p.total + ' marcas</span>' +
+        '<span>' + (full ? 'Sesión completa' : l.min ? 'Versión mínima cumplida' : 'En curso') + '</span></div>';
+      if (wn >= 1 && wn <= 4) html += '<p class="sub" style="margin-top:10px">' + WEEK_TIPS[wn] + '</p>';
+      html += '<p class="eyebrow" style="margin:14px 0 0">Descanso entre series</p><div class="btnrow">' +
+        '<button type="button" class="btn" data-act="timer" data-s="45">45 s</button>' +
+        '<button type="button" class="btn" data-act="timer" data-s="60">60 s</button>' +
+        '<button type="button" class="btn" data-act="timer" data-s="90">90 s</button></div></section>';
+      s.items.forEach(function (it) { html += itemHTML(it, l); });
+      html += '<section class="card"><h3>Día de pereza</h3><p class="sub">Haz solo el calentamiento y un ejercicio. Cuenta como sesión cumplida y mantiene la racha.</p>' +
+        '<div class="btnrow"><button type="button" class="btn' + (l.min ? ' on' : '') + '" data-act="min" aria-pressed="' + !!l.min + '">' + (l.min ? 'Versión mínima marcada' : 'Hoy hice la versión mínima') + '</button></div></section>';
+    }
+
+    var H = [['sleep', 'Dormí cerca de 8 horas'], ['walk', 'Caminé 3-5 min cada hora y media'], ['food', 'Comí con ensalada y una fruta']];
+    html += '<section class="card"><h3>Hábitos del día</h3><div class="habits">' + H.map(function (h) {
+      var on = !!l.habits[h[0]];
+      return '<button type="button" class="habit' + (on ? ' on' : '') + '" data-act="habit" data-h="' + h[0] + '" aria-pressed="' + on + '"><span>' + h[1] + '</span><span class="tick">' + (on ? 'SÍ' : '·') + '</span></button>';
+    }).join('') + '</div></section>';
+    html += '<section class="card"><label class="fl" for="nota">Nota del día (pie, energía, cómo te sentiste)</label><textarea id="nota" data-note="1">' + esc(l.note || '') + '</textarea></section>';
+    return html;
+  }
+
+  function mondayOf(d) { var dow = parse(d).getDay(); return addDays(d, dow === 0 ? -6 : 1 - dow); }
+  function semanaHTML() {
+    var mon = mondayOf(cur), html = headHTML(), planned = 0, ok = 0, rows = '';
+    for (var i = 0; i < 7; i++) {
+      var d = addDays(mon, i), s = sessionOf(d), stt = status(d), p = progress(d);
+      if (stt !== 'rest') { planned++; if (stt === 'done' || stt === 'min') ok++; }
+      var tag = stt === 'done' ? '<span class="tag done">Cumplido</span>' : stt === 'min' ? '<span class="tag done">Mínima</span>' :
+        stt === 'part' ? '<span class="tag part">Parcial</span>' : stt === 'rest' ? '<span class="tag">Descanso</span>' :
+        stt === 'pend' ? '<span class="tag part">Pendiente</span>' : '<span class="tag">Próximo</span>';
+      var pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+      rows += '<button type="button" class="wday' + (d === cur ? ' sel' : '') + '" data-act="goto" data-d="' + d + '">' +
+        '<div><div class="dn">' + DAYS[parse(d).getDay()] + ' ' + parse(d).getDate() + '</div><div class="ds">' + s.title + '</div></div>' + tag +
+        (p.total ? '<div class="bar' + (stt === 'done' || stt === 'min' ? ' done' : '') + '"><i style="width:' + (stt === 'min' ? 100 : pct) + '%"></i></div>' : '') + '</button>';
+    }
+    html += '<section class="card"><h2>Semana del ' + esc(shortDate(mon)) + '</h2><p class="sub num">' + ok + ' de ' + planned + ' sesiones cumplidas</p></section>';
+    html += '<div class="week">' + rows + '</div>';
+    return html;
+  }
+
+  function delta(v, base, unit) {
+    if (v == null || base == null) return '';
+    var x = Math.round((v - base) * 10) / 10;
+    if (x === 0) return '<span class="num">0 ' + unit + '</span>';
+    return '<span class="num ' + (x < 0 ? 'neg' : 'pos') + '">' + (x > 0 ? '+' : '') + String(x).replace('.', ',') + ' ' + unit + '</span>';
+  }
+  function fmt(n) { return n == null ? '·' : String(n).replace('.', ','); }
+
+  function progresoHTML() {
+    var html = headHTML();
+    var ms = S.measures.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    var first = S.measures.length ? S.measures.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; })[0] : null;
+    var last = ms[0];
+    html += '<section class="card"><h2>Medidas</h2><p class="sub">Cada 2 semanas, en ayunas y a la misma hora. La cintura se mide a la altura del ombligo.</p>' +
+      '<div class="fields"><div><label class="fl" for="m-peso">Peso (kg)</label><input type="text" id="m-peso" inputmode="decimal" autocomplete="off" placeholder="110"></div>' +
+      '<div><label class="fl" for="m-cin">Cintura (cm)</label><input type="text" id="m-cin" inputmode="decimal" autocomplete="off" placeholder="105"></div></div>' +
+      '<p class="err" id="m-err" role="alert"></p><div class="btnrow"><button type="button" class="btn primary" data-act="measure">Guardar medidas de ' + esc(shortDate(cur)) + '</button></div>';
+    if (last) html += '<p class="sub" style="margin-top:10px">Próxima medida sugerida: ' + esc(longDate(addDays(last.date, 14))) + '.</p>';
+    if (ms.length) {
+      html += '<div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Peso</th><th>Cambio</th><th>Cintura</th><th>Cambio</th></tr></thead><tbody>' +
+        ms.map(function (m) {
+          var isFirst = first && m.date === first.date;
+          return '<tr><td>' + esc(shortDate(m.date)) + '</td><td class="num">' + fmt(m.peso) + '</td><td>' + (isFirst ? '' : delta(m.peso, first && first.peso, 'kg')) + '</td><td class="num">' + fmt(m.cintura) + '</td><td>' + (isFirst ? '' : delta(m.cintura, first && first.cintura, 'cm')) + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+    } else html += '<p class="empty">Aún no hay medidas guardadas. Empieza con la de hoy.</p>';
+    html += '</section>';
+
+    var hs = S.hangs.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    var best = hs.reduce(function (m, h) { return Math.max(m, h.sec); }, 0);
+    html += '<section class="card"><h2>Colgada en la barra</h2><p class="sub">Prueba cuánto aguantas colgado, sin apoyar los pies. Meta: pasar de 10 s a 20 s.</p>' +
+      '<div class="fields"><div><label class="fl" for="h-sec">Segundos</label><input type="text" id="h-sec" inputmode="numeric" autocomplete="off" placeholder="10"></div><div></div></div>' +
+      '<p class="err" id="h-err" role="alert"></p><div class="btnrow"><button type="button" class="btn primary" data-act="hang">Guardar colgada</button></div>';
+    if (hs.length) {
+      html += '<p class="sub" style="margin-top:10px">Mejor marca: <b class="num">' + best + ' s</b></p><div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Tiempo</th></tr></thead><tbody>' +
+        hs.slice(0, 8).map(function (h) { return '<tr><td>' + esc(shortDate(h.date)) + '</td><td class="num">' + h.sec + ' s</td></tr>'; }).join('') + '</tbody></table></div>';
+    } else html += '<p class="empty">Sin registros todavía. Tu punto de partida fue de unos 10 s.</p>';
+    html += '</section>';
+    return html;
+  }
+
+  function planHTML() {
+    return headHTML() + '<section class="card plan">' +
+      '<h2>Reglas de la fase 1</h2>' +
+      '<h3>Semana tipo</h3><ul><li>Lunes y jueves: Fuerza A.</li><li>Martes y viernes: Fuerza B.</li><li>Miércoles: caminata rápida y movilidad.</li><li>Sábado: caminata suave y core.</li><li>Domingo: descanso total y medidas.</li></ul>' +
+      '<h3>Cómo progresar</h3><ul><li>Cuando llegues al máximo de repeticiones en todas las series, sube repeticiones o la lentitud de la bajada.</li><li>Solo después sube el peso.</li><li>Mantén cada bloque de 2 a 4 semanas antes de cambiarlo.</li></ul>' +
+      '<h3>El pie</h3><ul><li>Sin cuerda de saltar por ahora.</li><li>Calzado con buen soporte y masaje plantar con la botella.</li><li>Si el dolor empeora, para y consulta a un fisioterapeuta o médico.</li></ul>' +
+      '<h3>Trabajo sentado</h3><ul><li>Levántate y camina 3 a 5 minutos cada hora y media.</li><li>Meta inicial: 7.000 pasos al día.</li></ul>' +
+      '<h3>Comida (estimado)</h3><ul><li>Entre 2.100 y 2.300 kcal al día, sin comer menos.</li><li>Proteína entre 130 y 160 g.</li><li>Variar la cena: carne o granos del almuerzo, huevo con papa o arepa, atún con ensalada.</li></ul>' +
+      '<h3>Para no abandonar</h3><ul><li>Hora fija y todo listo la noche anterior.</li><li>Los días de pereza, versión mínima.</li><li>No faltar dos días seguidos.</li><li>Una sola sesión al día.</li></ul>' +
+      '<div class="note">El cansancio constante puede tener causas que se revisan con un análisis de sangre. Si no te has hecho chequeos recientes, vale la pena pedirlos.</div></section>';
+  }
+
+  function render() {
+    app.innerHTML = tab === 'hoy' ? hoyHTML() : tab === 'semana' ? semanaHTML() : tab === 'progreso' ? progresoHTML() : planHTML();
+    document.querySelectorAll('#tabs button').forEach(function (b) {
+      if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+  }
+
+  /* ---------- Temporizador ---------- */
+  var timer = null, tick = null, ac = null;
+  var timerEl = document.getElementById('timer');
+  function unlockAudio() {
+    try { if (!ac) { var A = window.AudioContext || window.webkitAudioContext; if (A) ac = new A(); } if (ac && ac.state === 'suspended') ac.resume(); } catch (e) {}
+  }
+  function beep() {
+    try {
+      if (ac) [0, 0.35].forEach(function (t) {
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+        g.gain.setValueAtTime(0.0001, ac.currentTime + t); g.gain.exponentialRampToValueAtTime(0.3, ac.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + 0.25);
+        o.start(ac.currentTime + t); o.stop(ac.currentTime + t + 0.3);
+      });
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } catch (e) {}
+  }
+  function stopTimer() { timer = null; clearInterval(tick); tick = null; timerEl.hidden = true; timerEl.className = 'timer'; }
+  function mmss(s) { return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+  function updateTimer() {
+    if (!timer) return;
+    var left = Math.max(0, Math.ceil((timer.end - Date.now()) / 1000));
+    var t = document.getElementById('t-time');
+    if (t) t.textContent = mmss(left);
+    if (left === 0) {
+      beep();
+      timerEl.className = 'timer finished';
+      timerEl.querySelector('.tl').textContent = 'Listo, siguiente serie';
+      clearInterval(tick); tick = null;
+      setTimeout(function () { if (timer && timer.end <= Date.now()) stopTimer(); }, 5000);
+    }
+  }
+  function startTimer(sec) {
+    unlockAudio();
+    timer = { end: Date.now() + sec * 1000 };
+    timerEl.className = 'timer';
+    timerEl.innerHTML = '<div class="timer-inner"><span class="tl">Descanso</span><strong id="t-time">' + mmss(sec) + '</strong><button type="button" data-act="tstop">Parar</button></div>';
+    timerEl.hidden = false;
+    clearInterval(tick); tick = setInterval(updateTimer, 250);
+  }
+
+  /* ---------- Eventos ---------- */
+  function num(v) { var x = parseFloat(String(v).trim().replace(',', '.')); return isFinite(x) ? x : null; }
+  var wake = null;
+  function keepAwake() {
+    try { if (!wake && navigator.wakeLock) navigator.wakeLock.request('screen').then(function (w) { wake = w; w.addEventListener('release', function () { wake = null; }); }).catch(function () {}); } catch (e) {}
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (!b) return;
+    var act = b.dataset.act;
+    if (act === 'tab') { tab = b.dataset.tab; render(); window.scrollTo(0, 0); return; }
+    if (act === 'day') { cur = addDays(cur, +b.dataset.n); render(); return; }
+    if (act === 'gotoday') { cur = today(); render(); return; }
+    if (act === 'goto') { cur = b.dataset.d; tab = 'hoy'; render(); window.scrollTo(0, 0); return; }
+    if (act === 'timer') { startTimer(+b.dataset.s); return; }
+    if (act === 'tstop') { stopTimer(); return; }
+    if (act === 'set') {
+      keepAwake();
+      var s = sessionOf(cur), it = s.items.filter(function (x) { return x.id === b.dataset.id; })[0];
+      if (!it) return;
+      var l = ensureLog(cur), i = +b.dataset.i, c = Math.min(it.sets, l.sets[it.id] || 0);
+      l.sets[it.id] = (c === i + 1) ? i : i + 1;
+      save(); render(); return;
+    }
+    if (act === 'min') { var l2 = ensureLog(cur); l2.min = !l2.min; save(); render(); return; }
+    if (act === 'habit') { var l3 = ensureLog(cur); l3.habits[b.dataset.h] = !l3.habits[b.dataset.h]; save(); render(); return; }
+    if (act === 'measure') {
+      var peso = num(document.getElementById('m-peso').value), cin = num(document.getElementById('m-cin').value);
+      var err = document.getElementById('m-err');
+      if (peso == null && cin == null) { err.textContent = 'Escribe al menos el peso o la cintura.'; return; }
+      if ((peso != null && (peso < 30 || peso > 300)) || (cin != null && (cin < 40 || cin > 250))) { err.textContent = 'Revisa los valores: el peso va en kg y la cintura en cm.'; return; }
+      S.measures = S.measures.filter(function (m) { return m.date !== cur; });
+      S.measures.push({ date: cur, peso: peso, cintura: cin });
+      save(); render(); return;
+    }
+    if (act === 'hang') {
+      var sec = num(document.getElementById('h-sec').value), err2 = document.getElementById('h-err');
+      if (sec == null || sec < 1 || sec > 600) { err2.textContent = 'Escribe los segundos, por ejemplo 12.'; return; }
+      S.hangs = S.hangs.filter(function (h) { return h.date !== cur; });
+      S.hangs.push({ date: cur, sec: Math.round(sec) });
+      save(); render(); return;
+    }
+  });
+
+  var noteT = null;
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.dataset && e.target.dataset.note) {
+      clearTimeout(noteT);
+      var v = e.target.value, d = cur;
+      noteT = setTimeout(function () { ensureLog(d).note = v; save(); }, 500);
+    }
+  });
+  document.addEventListener('focusout', function (e) {
+    if (e.target && e.target.dataset && e.target.dataset.note) { clearTimeout(noteT); ensureLog(cur).note = e.target.value; save(); }
+  });
+  app.addEventListener('toggle', function (e) {
+    var d = e.target;
+    if (d && d.dataset && d.dataset.tip) { if (d.open) openTips[d.dataset.tip] = true; else delete openTips[d.dataset.tip]; }
+  }, true);
+
+  render();
+  initCloud();
+})();
+</script>
